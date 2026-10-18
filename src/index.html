@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Petal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="stage">
+  <header>
+    <div class="brand"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><g fill="#ff7a6b"><ellipse cx="16" cy="8" rx="4.5" ry="7"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(72 16 16)" fill="#2ec4b6"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(144 16 16)"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(216 16 16)" fill="#2ec4b6"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(288 16 16)"/></g></svg><span>Petal</span></div>
+    <div class="engine" id="engine">checking engine...</div>
+  </header>
+  <section id="drop">
+    <div class="drop-card">
+      <h1>Drop a file here</h1>
+      <p>The conversion wheel opens right under your cursor. <kbd>Esc</kbd> closes it.</p>
+      <button id="pick" type="button">Choose a file</button>
+      <p class="small">Images, video and audio. Everything stays on this computer.</p>
+    </div>
+  </section>
+  <section id="jobs" aria-live="polite"></section>
+</main>
+<div id="wheel-layer" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

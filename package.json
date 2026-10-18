@@ -1,0 +1,15 @@
+{
+  "name": "petal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "test": "node test/engine.test.mjs",
+    "shots": "node test/screenshots.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "puppeteer-core": "^25.14.0"
+  }
+}
