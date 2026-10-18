@@ -1,0 +1,11 @@
+{
+  "id": "dark",
+  "name": "Dark",
+  "vars": {
+    "--page": "#14161b", "--card": "#1d2027", "--ink": "#f1f2f5", "--mute": "#959aa6", "--line": "#2d313b",
+    "--coral": "#ff7a6b", "--teal": "#2ec4b6", "--on-accent": "#16100f", "--on-accent-soft": "#2c1f1d",
+    "--p0": "#23262e", "--p1": "#23262e", "--hub0": "#14161b", "--hub1": "#14161b", "--hub-edge": "#343945",
+    "--petal-edge": "#343945", "--shadow": "rgba(0,0,0,.5)", "--veil": "rgba(8,9,11,.72)", "--blur": "none",
+    "--halo": "transparent", "--switch-on": "#f1f2f5", "--switch-ink": "#14161b"
+  }
+}

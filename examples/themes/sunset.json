@@ -1,0 +1,12 @@
+{
+  "id": "sunset",
+  "name": "Sunset",
+  "vars": {
+    "--page": "linear-gradient(160deg, #2b1030, #5a1f3a 60%, #8a3a3a)", "--card": "rgba(255,255,255,.1)", "--ink": "#fff4ee",
+    "--mute": "#e0b9b4", "--line": "rgba(255,255,255,.2)", "--coral": "#ffb347", "--teal": "#ff6f91",
+    "--on-accent": "#2b1030", "--on-accent-soft": "#4a2040",
+    "--p0": "#3b1a45", "--p1": "#4a2150", "--hub0": "#2b1030", "--hub1": "#2b1030", "--hub-edge": "rgba(255,255,255,.2)",
+    "--petal-edge": "rgba(255,255,255,.18)", "--shadow": "rgba(0,0,0,.45)", "--veil": "rgba(30,8,32,.7)", "--blur": "blur(4px)",
+    "--halo": "transparent", "--switch-on": "#fff4ee", "--switch-ink": "#2b1030"
+  }
+}

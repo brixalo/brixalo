@@ -1,24 +1,11 @@
 /* Petal styles. Three themes: light, dark, glass. All colors come from variables. */
-:root, [data-theme="glass"] {
-  --page: radial-gradient(1000px 600px at 20% -10%, #1d2540, transparent), radial-gradient(800px 500px at 100% 110%, #2a1a24, transparent), #12151c;
-  --card: rgba(27, 32, 48, .75); --ink: #eef1f7; --mute: #8d96ab; --line: #2a3147;
+/* Defaults are the Glass (dark tint) look. themes.js overrides these variables for every theme. */
+:root {
+  --page: #12151c; --card: rgba(27, 32, 48, .75); --ink: #eef1f7; --mute: #8d96ab; --line: #2a3147;
   --coral: #ff7a6b; --teal: #2ec4b6; --on-accent: #16100f; --on-accent-soft: #2c1f1d;
   --p0: #1c2236; --p1: #262e48; --hub0: #1a1f31; --hub1: #10131c; --hub-edge: rgba(255,255,255,.1);
-  --petal-edge: rgba(255,255,255,.08); --shadow: rgba(0,0,0,.45);
-  --veil: radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), rgba(18,21,28,.35), rgba(6,8,12,.8)); --blur: blur(5px);
-  --halo: rgba(255,122,107,.06);
-}
-[data-theme="dark"] {
-  --page: #14161b; --card: #1d2027; --ink: #f1f2f5; --mute: #959aa6; --line: #2d313b;
-  --coral: #ff7a6b; --teal: #2ec4b6;
-  --p0: #23262e; --p1: #23262e; --hub0: #14161b; --hub1: #14161b; --hub-edge: #343945; --petal-edge: #343945; --shadow: rgba(0,0,0,.5);
-  --veil: rgba(8,9,11,.72); --blur: none; --halo: transparent;
-}
-[data-theme="light"] {
-  --page: #f4f1ec; --card: #ffffff; --ink: #1f2430; --mute: #6c7385; --line: #ddd8cf;
-  --coral: #f2604f; --teal: #14a898; --on-accent: #ffffff; --on-accent-soft: #fff1ee;
-  --p0: #ffffff; --p1: #ffffff; --hub0: #f4f1ec; --hub1: #f4f1ec; --hub-edge: #ddd8cf; --petal-edge: #e3ded5; --shadow: rgba(60,50,30,.22);
-  --veil: rgba(244,241,236,.78); --blur: blur(3px); --halo: transparent;
+  --petal-edge: rgba(255,255,255,.08); --shadow: rgba(0,0,0,.45); --halo: transparent;
+  --veil: rgba(8, 10, 16, .7); --blur: blur(5px); --switch-on: #eef1f7; --switch-ink: #12151c;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--page); color: var(--ink); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
@@ -30,7 +17,7 @@ header { display: flex; justify-content: space-between; align-items: center; gap
 .engine.ok { color: var(--teal); } .engine.bad { color: var(--coral); }
 .themes { display: flex; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
 .themes button { margin: 0; padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 999px; background: none; color: var(--mute); }
-.themes button[aria-pressed="true"] { background: var(--ink); color: var(--page-solid, var(--hub1)); }
+.themes button[aria-pressed="true"] { background: var(--switch-on); color: var(--switch-ink); }
 #drop { flex: 1; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--line); border-radius: 22px; transition: .15s; min-height: 200px; }
 #drop.over { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 8%, transparent); }
 .drop-card { text-align: center; max-width: 420px; }
@@ -72,3 +59,10 @@ button:hover { filter: brightness(1.08); }
 .hubname { fill: var(--ink); font: 600 12px system-ui, sans-serif; text-anchor: middle; }
 .hubsub { fill: var(--mute); font: 11px system-ui, sans-serif; text-anchor: middle; }
 @media (prefers-reduced-motion: reduce) { #wheel, #wheel-layer { animation: none; opacity: 1; transform: translate(-50%, -50%); } .pg { transition: none; } }
+
+/* glass controls */
+.glassbar { display: none; align-items: center; gap: 10px; font-size: 12px; color: var(--mute); }
+html[data-glass="1"] .glassbar { display: flex; }
+.glassbar input[type="range"] { width: 110px; accent-color: var(--coral); }
+.glassbar select { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px; font: inherit; }
+.themes-path { font-size: 11px; color: var(--mute); }

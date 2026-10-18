@@ -1,0 +1,11 @@
+{
+  "id": "light",
+  "name": "Light",
+  "vars": {
+    "--page": "#f4f1ec", "--card": "#ffffff", "--ink": "#1f2430", "--mute": "#6c7385", "--line": "#ddd8cf",
+    "--coral": "#f2604f", "--teal": "#14a898", "--on-accent": "#ffffff", "--on-accent-soft": "#fff1ee",
+    "--p0": "#ffffff", "--p1": "#ffffff", "--hub0": "#f4f1ec", "--hub1": "#f4f1ec", "--hub-edge": "#ddd8cf",
+    "--petal-edge": "#e3ded5", "--shadow": "rgba(60,50,30,.22)", "--veil": "rgba(244,241,236,.78)", "--blur": "blur(3px)",
+    "--halo": "transparent", "--switch-on": "#1f2430", "--switch-ink": "#ffffff"
+  }
+}

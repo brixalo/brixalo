@@ -41,4 +41,11 @@ await pg.goto("http://localhost:8765/?open=song.wav&x=880&y=40"); await new Prom
 await pg.screenshot({ path: out + "7-wheel-audio-edge.png" });
 await pg.goto("http://localhost:8765/?open=notes.txt"); await new Promise((r) => setTimeout(r, 400));
 await pg.screenshot({ path: out + "8-unsupported.png" });
+const variants = [["light", ""], ["dark", ""], ["glass", "&tint=dark&alpha=45"], ["glass", "&tint=light&alpha=45"]];
+for (const [i, [t, extra]] of variants.entries()) {
+  await pg.goto(`http://localhost:8765/?open=holiday.png&x=450&y=340&hover=1&theme=${t}${extra}`); await new Promise((r) => setTimeout(r, 700));
+  await pg.screenshot({ path: `${out}9${i}-theme-${t}${extra.includes("light") ? "-lighttint" : ""}.png` });
+  await pg.goto(`http://localhost:8765/?theme=${t}${extra}`); await new Promise((r) => setTimeout(r, 400));
+  await pg.screenshot({ path: `${out}9${i}b-home-${t}${extra.includes("light") ? "-lighttint" : ""}.png` });
+}
 await b.close(); srv.close();

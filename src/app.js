@@ -1,3 +1,4 @@
+import { themes, loadThemes, applyTheme, savedThemeId, glassSettings, saveGlass } from "./themes.js";
 import { kindOf, targetsFor, baseName, buildCommand, outputPath } from "./formats.js";
 
 const T = window.__TAURI__ || null;
@@ -57,15 +58,29 @@ function shorten(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
 function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 // ---------- themes ----------
-const THEMES = ["light", "dark", "glass"];
-function setTheme(name) {
-  if (!THEMES.includes(name)) name = "glass";
-  document.documentElement.dataset.theme = name;
-  try { localStorage.setItem("petal-theme", name); } catch { /* storage may be unavailable */ }
-  document.querySelectorAll(".themes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === name)));
+async function initThemes() {
+  await loadThemes(T);
+  const bar = document.querySelector(".themes");
+  bar.innerHTML = "";
+  for (const t of themes.values()) {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.theme = t.id; b.textContent = t.name;
+    b.addEventListener("click", () => chooseTheme(t.id));
+    bar.append(b);
+  }
+  const g = glassSettings();
+  $("alpha").value = g.alpha; $("tint").value = g.tint;
+  $("alpha").addEventListener("input", () => { saveGlass({ ...glassSettings(), alpha: +$("alpha").value }); applyTheme(document.documentElement.dataset.theme); });
+  $("tint").addEventListener("change", () => { saveGlass({ ...glassSettings(), tint: $("tint").value }); applyTheme(document.documentElement.dataset.theme); });
+  chooseTheme(new URLSearchParams(location.search).get("theme") || savedThemeId());
+  const gq = new URLSearchParams(location.search);
+  if (gq.get("alpha") || gq.get("tint")) { saveGlass({ alpha: +gq.get("alpha") || glassSettings().alpha, tint: gq.get("tint") || glassSettings().tint }); $("alpha").value = glassSettings().alpha; $("tint").value = glassSettings().tint; chooseTheme(document.documentElement.dataset.theme); }
 }
-document.querySelectorAll(".themes button").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.theme)));
-setTheme(new URLSearchParams(location.search).get("theme") || localStorage.getItem("petal-theme") || "glass");
+function chooseTheme(id) {
+  applyTheme(id);
+  document.querySelectorAll(".themes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === document.documentElement.dataset.theme)));
+}
+await initThemes();
 
 // ---------- jobs ----------
 function toast(path, cls, msg, id) {
