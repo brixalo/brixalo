@@ -180,7 +180,32 @@ fn glass_impl(window: &tauri::WebviewWindow, on: bool, _dark: bool) -> &'static 
     if apply_vibrancy(window, NSVisualEffectMaterial::HudWindow, None, None).is_ok() { "vibrancy" } else { "none" }
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+#[cfg(target_os = "linux")]
+fn glass_impl(window: &tauri::WebviewWindow, on: bool, _dark: bool) -> &'static str {
+    use gtk::prelude::*;
+    // KDE blur hint: an empty region means "blur behind the whole window". KWin (and picom)
+    // honour it; compositors that do not know it simply ignore it.
+    if let Ok(w) = window.gtk_window() {
+        if let Some(gw) = w.window() {
+            let atom = gtk::gdk::Atom::intern("_KDE_NET_WM_BLUR_BEHIND_REGION");
+            if on {
+                gtk::gdk::property_change(
+                    &gw,
+                    &atom,
+                    &gtk::gdk::Atom::intern("CARDINAL"),
+                    32,
+                    gtk::gdk::PropMode::Replace,
+                    gtk::gdk::ChangeData::ULongs(&[]),
+                );
+            } else {
+                gtk::gdk::property_delete(&gw, &atom);
+            }
+        }
+    }
+    if on { "transparent+blur-hint" } else { "off" }
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
 fn glass_impl(_window: &tauri::WebviewWindow, on: bool, _dark: bool) -> &'static str {
     if on { "transparent" } else { "off" }
 }

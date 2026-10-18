@@ -18,7 +18,7 @@ for (const f of files) {
 
 const cargo = readFileSync(new URL("../src-tauri/Cargo.toml", import.meta.url), "utf8");
 const deps = cargo.split("[dependencies]")[1].split("\n").filter((l) => /^[a-z_-]+\s*=/.test(l)).map((l) => l.split("=")[0].trim());
-const allowed = ["tauri", "window-vibrancy", "tauri-plugin-dialog", "serde", "serde_json"];
+const allowed = ["tauri", "window-vibrancy", "gtk", "tauri-plugin-dialog", "serde", "serde_json"];
 deps.every((d) => allowed.includes(d)) ? ok(`Rust dependencies are only: ${deps.join(", ")}`) : fail(`unexpected Rust dependencies: ${deps}`);
 
 const conf = JSON.parse(readFileSync(new URL("../src-tauri/tauri.conf.json", import.meta.url), "utf8"));
