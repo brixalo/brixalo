@@ -25,8 +25,8 @@ export function openWheel(path, x, y) {
   const gap = 0.05, n = targets.length, step = (2 * Math.PI) / n;
   const px = Math.min(Math.max(x, 200), innerWidth - 200), py = Math.min(Math.max(y, 200), innerHeight - 200);
   let svg = `<svg viewBox="-20 -20 380 380" role="menu" aria-label="Convert to"><defs>
-    <radialGradient id="gp" cx="50%" cy="50%" r="60%"><stop offset="0.35" stop-color="#1c2236"/><stop offset="1" stop-color="#262e48"/></radialGradient>
-    <radialGradient id="gh" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#1a1f31"/><stop offset="1" stop-color="#10131c"/></radialGradient></defs>
+    <radialGradient id="gp" cx="50%" cy="50%" r="60%"><stop offset="0.35" class="stop-a"/><stop offset="1" class="stop-b"/></radialGradient>
+    <radialGradient id="gh" cx="50%" cy="50%" r="50%"><stop offset="0" class="stop-h0"/><stop offset="1" class="stop-h1"/></radialGradient></defs>
     <circle cx="${CX}" cy="${CY}" r="${R_OUT + 12}" class="halo"/>`;
   targets.forEach((t, i) => {
     const a0 = -Math.PI / 2 + i * step + gap / 2 - step / 2, a1 = a0 + step - gap;
@@ -55,6 +55,17 @@ export function openWheel(path, x, y) {
 export function closeWheel() { const l = $("wheel-layer"); l.hidden = true; l.innerHTML = ""; }
 function shorten(s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; }
 function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+// ---------- themes ----------
+const THEMES = ["light", "dark", "glass"];
+function setTheme(name) {
+  if (!THEMES.includes(name)) name = "glass";
+  document.documentElement.dataset.theme = name;
+  try { localStorage.setItem("petal-theme", name); } catch { /* storage may be unavailable */ }
+  document.querySelectorAll(".themes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === name)));
+}
+document.querySelectorAll(".themes button").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.theme)));
+setTheme(new URLSearchParams(location.search).get("theme") || localStorage.getItem("petal-theme") || "glass");
 
 // ---------- jobs ----------
 function toast(path, cls, msg, id) {
