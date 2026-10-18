@@ -150,10 +150,50 @@ fn themes_folder(app: tauri::AppHandle) -> Result<String, String> {
     Ok(themes_dir(&app)?.to_string_lossy().to_string())
 }
 
+/// Real glass: asks the operating system to blur what is behind the window.
+/// Windows: Mica (Win 11) or Acrylic. macOS: vibrancy. Linux: the window is transparent and the
+/// desktop compositor decides whether it also blurs. Returns what was applied.
+#[cfg(target_os = "windows")]
+fn glass_impl(window: &tauri::WebviewWindow, on: bool, dark: bool) -> &'static str {
+    use window_vibrancy::*;
+    if !on {
+        let _ = clear_mica(window);
+        let _ = clear_acrylic(window);
+        return "off";
+    }
+    if apply_mica(window, Some(dark)).is_ok() {
+        "mica"
+    } else if apply_acrylic(window, Some((18, 21, 28, 60))).is_ok() {
+        "acrylic"
+    } else {
+        "none"
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn glass_impl(window: &tauri::WebviewWindow, on: bool, _dark: bool) -> &'static str {
+    use window_vibrancy::*;
+    if !on {
+        let _ = clear_vibrancy(window);
+        return "off";
+    }
+    if apply_vibrancy(window, NSVisualEffectMaterial::HudWindow, None, None).is_ok() { "vibrancy" } else { "none" }
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
+fn glass_impl(_window: &tauri::WebviewWindow, on: bool, _dark: bool) -> &'static str {
+    if on { "transparent" } else { "off" }
+}
+
+#[tauri::command]
+fn set_glass(window: tauri::WebviewWindow, on: bool, dark: bool) -> String {
+    glass_impl(&window, on, dark).to_string()
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![engine_status, plan_output, run_engine, e2e_request, list_user_themes, themes_folder])
+        .invoke_handler(tauri::generate_handler![engine_status, plan_output, run_engine, e2e_request, list_user_themes, themes_folder, set_glass])
         .run(tauri::generate_context!())
         .expect("error while running Brixalo");
 }

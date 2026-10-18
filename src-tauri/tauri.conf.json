@@ -6,8 +6,9 @@
   "build": { "frontendDist": "../src" },
   "app": {
     "withGlobalTauri": true,
+    "macOSPrivateApi": true,
     "windows": [
-      { "title": "Brixalo", "width": 900, "height": 640, "minWidth": 640, "minHeight": 520, "dragDropEnabled": true }
+      { "title": "Brixalo", "width": 900, "height": 640, "minWidth": 640, "minHeight": 520, "transparent": true, "dragDropEnabled": true }
     ],
     "security": { "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" }
   },

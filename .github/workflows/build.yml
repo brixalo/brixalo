@@ -63,6 +63,47 @@ jobs:
             e2e/probe.txt
             e2e/app.log
 
+  glass-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with: { workspaces: "src-tauri" }
+      - name: System packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev xvfb scrot picom feh imagemagick
+      - run: npm install
+      - run: npx tauri icon assets/icon.png
+      - run: npx tauri build --debug --no-bundle
+      - name: Glass proof (real app over a colourful backdrop with a compositor)
+        run: |
+          mkdir -p glass && cd glass
+          convert -size 1000x700 plasma:fractal -blur 0x2 bg.png
+          convert bg.png -fill '#ff2d95' -draw 'rectangle 40,420 360,660' -fill '#00e5ff' -draw 'circle 760,520 760,640' -fill '#ffe600' -draw 'rectangle 600,40 960,160' bg.png
+          for MODE in default nocomp; do
+            xvfb-run -a -s "-screen 0 1000x700x24 +extension Composite" env MODE=$MODE bash -c '
+              feh --bg-fill bg.png
+              picom --backend xrender --no-fading-openclose --config /dev/null > picom-$MODE.log 2>&1 &
+              sleep 2
+              scrot backdrop-only-$MODE.png
+              if [ "$MODE" = nocomp ]; then export WEBKIT_DISABLE_COMPOSITING_MODE=1; fi
+              ../src-tauri/target/debug/brixalo > app-$MODE.log 2>&1 &
+              APP=$!
+              sleep 12
+              scrot glass-$MODE.png
+              kill $APP || true; pkill picom || true'
+          done
+          ls -la
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: glass-proof
+          path: glass/*
+
   installers:
     needs: [engine-test, e2e-linux]
     strategy:
