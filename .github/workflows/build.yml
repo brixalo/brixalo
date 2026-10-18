@@ -39,11 +39,11 @@ jobs:
           mkdir -p e2e && cd e2e
           ffmpeg -y -loglevel error -f lavfi -i testsrc=size=320x240:rate=15:duration=2 -f lavfi -i sine=frequency=440:duration=2 -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac birthday.mov
           sha256sum birthday.mov > before.sha
-          export PETAL_E2E_FILE="$PWD/birthday.mov" PETAL_E2E_TO=webm PETAL_E2E_DELAY_MS=9000
+          export PETAL_E2E_FILE="$PWD/birthday.mov" PETAL_E2E_TO=webm PETAL_E2E_DELAY_MS=16000
           xvfb-run -a -s "-screen 0 1000x700x24" bash -c '
             ../src-tauri/target/debug/petal > app.log 2>&1 &
             APP=$!
-            sleep 6; scrot 1-wheel-open.png
+            sleep 10; scrot 1-wheel-open.png; sleep 3; scrot 1b-wheel-open.png
             for i in $(seq 1 40); do [ -f birthday.webm ] && break; sleep 1; done
             sleep 2; scrot 2-after-click.png
             kill $APP || true'

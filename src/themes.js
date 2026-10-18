@@ -54,6 +54,7 @@ export function applyTheme(id, glass = glassSettings()) {
     };
   }
   for (const [k, v] of Object.entries(vars)) if (KNOWN_VARS.test(k)) root.style.setProperty(k, v);
+  root.style.colorScheme = (t.glass ? glass.tint : t.scheme) === "light" ? "light" : "dark";
   root.dataset.theme = t.id;
   root.dataset.glass = t.glass ? "1" : "";
   try { localStorage.setItem(STORE, t.id); } catch { /* storage unavailable */ }

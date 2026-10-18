@@ -1,6 +1,7 @@
 {
   "id": "light",
   "name": "Light",
+  "scheme": "light",
   "vars": {
     "--page": "#f4f1ec", "--card": "#ffffff", "--ink": "#1f2430", "--mute": "#6c7385", "--line": "#ddd8cf",
     "--coral": "#f2604f", "--teal": "#14a898", "--on-accent": "#ffffff", "--on-accent-soft": "#fff1ee",
