@@ -1,13 +1,13 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Petal",
+  "productName": "Brixalo",
   "version": "0.1.0",
-  "identifier": "app.petal.converter",
+  "identifier": "app.brixalo.converter",
   "build": { "frontendDist": "../src" },
   "app": {
     "withGlobalTauri": true,
     "windows": [
-      { "title": "Petal", "width": 900, "height": 640, "minWidth": 640, "minHeight": 520, "dragDropEnabled": true }
+      { "title": "Brixalo", "width": 900, "height": 640, "minWidth": 640, "minHeight": 520, "dragDropEnabled": true }
     ],
     "security": { "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" }
   },

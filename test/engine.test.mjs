@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildCommand, outputPath, targetsFor, kindOf, extOf } from "../src/formats.js";
 
-const dir = mkdtempSync(join(tmpdir(), "petal-"));
+const dir = mkdtempSync(join(tmpdir(), "brixalo-"));
 const run = (bin, args, timeout = 120000) => spawnSync(bin, args, { encoding: "utf8", timeout, stdio: ["ignore", "pipe", "pipe"] });
 const must = (bin, args) => { const r = run(bin, args); if (r.status !== 0) throw new Error(`${bin} ${args.join(" ")}\n${r.stderr}`); return r; };
 const im = run("magick", ["-version"]).status === 0 ? "magick" : "convert";

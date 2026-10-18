@@ -1,4 +1,4 @@
-/* Petal styles. Three themes: light, dark, glass. All colors come from variables. */
+/* Brixalo styles. Three themes: light, dark, glass. All colors come from variables. */
 /* Defaults are the Glass (dark tint) look. themes.js overrides these variables for every theme. */
 :root {
   --page: #12151c; --card: rgba(27, 32, 48, .75); --ink: #eef1f7; --mute: #8d96ab; --line: #2a3147;

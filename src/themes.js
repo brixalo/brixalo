@@ -1,9 +1,9 @@
 // Theme loader. Built-in themes live in src/themes/*.json. Add-ons are more JSON files in
-// the user's Petal themes folder (see docs/themes.md). A theme is only a set of CSS variables.
+// the user's Brixalo themes folder (see docs/themes.md). A theme is only a set of CSS variables.
 
 const BUILT_IN = ["light", "dark", "glass"];
-const STORE = "petal-theme";
-const GLASS_STORE = "petal-glass";
+const STORE = "brixalo-theme";
+const GLASS_STORE = "brixalo-glass";
 const KNOWN_VARS = /^--[a-z0-9-]+$/;
 
 export const themes = new Map();

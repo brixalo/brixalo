@@ -1,16 +1,16 @@
 # Themes and add-ons
 
-Petal ships with Light, Dark and Glass. Glass has a transparency slider and a Dark or Light tint.
+Brixalo ships with Light, Dark and Glass. Glass has a transparency slider and a Dark or Light tint.
 
-More looks are free add-ons. An add-on is one `.json` file. Drop it into the Petal themes folder and restart Petal.
+More looks are free add-ons. An add-on is one `.json` file. Drop it into the Brixalo themes folder and restart Brixalo.
 It appears in the theme switcher. Add-ons are free and open: copy one and change the colors.
 
 ## Where the folder is
-- Windows: `%APPDATA%\app.petal.converter\themes`
-- macOS: `~/Library/Application Support/app.petal.converter/themes`
-- Linux: `~/.config/app.petal.converter/themes`
+- Windows: `%APPDATA%\app.brixalo.converter\themes`
+- macOS: `~/Library/Application Support/app.brixalo.converter/themes`
+- Linux: `~/.config/app.brixalo.converter/themes`
 
-Petal creates the folder on first start.
+Brixalo creates the folder on first start.
 
 ## File format
 ```json

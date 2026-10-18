@@ -61,9 +61,9 @@ static JOB_COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64:
 fn friendly_error(stderr: &str) -> String {
     let low = stderr.to_lowercase();
     if low.contains("invalid data found") || low.contains("no decode delegate") || low.contains("moov atom not found") || low.contains("corrupt") {
-        "This file looks damaged, or it is not a file Petal can read.".into()
+        "This file looks damaged, or it is not a file Brixalo can read.".into()
     } else if low.contains("permission denied") || low.contains("read-only file system") {
-        "Petal is not allowed to write in this folder. Move the file somewhere else and try again.".into()
+        "Brixalo is not allowed to write in this folder. Move the file somewhere else and try again.".into()
     } else if low.contains("no space left") {
         "The disk is full.".into()
     } else if low.contains("unknown encoder") || low.contains("no encode delegate") || low.contains("unable to find a suitable output format") {
@@ -79,18 +79,18 @@ fn friendly_error(stderr: &str) -> String {
 #[tauri::command]
 fn run_engine(engine: String, args: Vec<String>, output: String) -> Result<(), String> {
     let bin = match engine.as_str() {
-        "ffmpeg" => find_bin(&["ffmpeg"]).ok_or("FFmpeg was not found. Install it or place it next to Petal.")?,
-        "imagemagick" => magick_bin().ok_or("ImageMagick was not found. Install it or place it next to Petal.")?,
+        "ffmpeg" => find_bin(&["ffmpeg"]).ok_or("FFmpeg was not found. Install it or place it next to Brixalo.")?,
+        "imagemagick" => magick_bin().ok_or("ImageMagick was not found. Install it or place it next to Brixalo.")?,
         _ => return Err("unknown engine".into()),
     };
     let out_path = PathBuf::from(&output);
     if out_path.exists() {
-        return Err("A file with that name already exists. Petal never overwrites files.".into());
+        return Err("A file with that name already exists. Brixalo never overwrites files.".into());
     }
     let dir = out_path.parent().ok_or("bad output path")?;
     let ext = out_path.extension().and_then(|e| e.to_str()).ok_or("bad output path")?;
     let n = JOB_COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-    let tmp = dir.join(format!(".petal-{}-{}.part.{}", std::process::id(), n, ext));
+    let tmp = dir.join(format!(".brixalo-{}-{}.part.{}", std::process::id(), n, ext));
     let tmp_s = tmp.to_string_lossy().to_string();
     let args: Vec<String> = args.into_iter().map(|a| if a == output { tmp_s.clone() } else { a }).collect();
     let result = Command::new(&bin).args(&args).output();
@@ -117,9 +117,9 @@ fn run_engine(engine: String, args: Vec<String>, output: String) -> Result<(), S
 /// Used by the automated end-to-end test in CI: a file path to open at start-up.
 #[tauri::command]
 fn e2e_request() -> Option<Vec<String>> {
-    let file = std::env::var("PETAL_E2E_FILE").ok()?;
-    let to = std::env::var("PETAL_E2E_TO").unwrap_or_default();
-    let delay = std::env::var("PETAL_E2E_DELAY_MS").unwrap_or_else(|_| "1500".into());
+    let file = std::env::var("BRIXALO_E2E_FILE").ok()?;
+    let to = std::env::var("BRIXALO_E2E_TO").unwrap_or_default();
+    let delay = std::env::var("BRIXALO_E2E_DELAY_MS").unwrap_or_else(|_| "1500".into());
     Some(vec![file, to, delay])
 }
 
@@ -155,7 +155,7 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![engine_status, plan_output, run_engine, e2e_request, list_user_themes, themes_folder])
         .run(tauri::generate_context!())
-        .expect("error while running Petal");
+        .expect("error while running Brixalo");
 }
 
 #[cfg(test)]
@@ -164,7 +164,7 @@ mod tests {
     use std::fs;
 
     fn tmp(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("petal-test-{}-{}", std::process::id(), name));
+        let d = std::env::temp_dir().join(format!("brixalo-test-{}-{}", std::process::id(), name));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d

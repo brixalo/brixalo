@@ -21,7 +21,7 @@ function sector(a0, a1) {
 
 export function openWheel(path, x, y) {
   const targets = targetsFor(path);
-  if (!targets.length) { toast(path, "fail", "Petal can't convert this type yet. It handles images (png, jpg, webp, gif...), video (mp4, mov, mkv, webm...) and audio (mp3, wav, flac...)."); return; }
+  if (!targets.length) { toast(path, "fail", "Brixalo can't convert this type yet. It handles images (png, jpg, webp, gif...), video (mp4, mov, mkv, webm...) and audio (mp3, wav, flac...)."); return; }
   const layer = $("wheel-layer");
   const gap = 0.05, n = targets.length, step = (2 * Math.PI) / n;
   const px = Math.min(Math.max(x, 200), innerWidth - 200), py = Math.min(Math.max(y, 200), innerHeight - 200);
@@ -137,7 +137,7 @@ if (q.get("open")) handle(q.get("open"), +q.get("x") || innerWidth / 2, +q.get("
 
 if (q.get("hover")) setTimeout(() => { const g = document.querySelectorAll(".pg")[+q.get("hover")]; if (g) g.classList.add("focus"); }, 50);
 
-// End-to-end test hook for the compiled app (CI sets PETAL_E2E_FILE). It drives the same
+// End-to-end test hook for the compiled app (CI sets BRIXALO_E2E_FILE). It drives the same
 // wheel and click path a user does; only the operating-system drag gesture is skipped.
 if (T) {
   T.core.invoke("e2e_request").then((req) => {

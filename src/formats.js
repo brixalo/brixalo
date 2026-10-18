@@ -1,4 +1,4 @@
-// Petal format table and command builders. Pure functions, no DOM, no Tauri.
+// Brixalo format table and command builders. Pure functions, no DOM, no Tauri.
 // The same module is used by the app and by the tests.
 
 export const IMAGE_EXT = ["png", "jpg", "jpeg", "webp", "gif", "bmp", "tif", "tiff", "avif", "heic", "ico"];
