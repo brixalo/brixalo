@@ -81,23 +81,33 @@ jobs:
       - run: npx tauri build --debug --no-bundle
       - name: Glass proof (real app over a colourful backdrop with a compositor)
         run: |
+          sudo apt-get install -y x11-utils x11-apps xdotool
           mkdir -p glass && cd glass
           convert -size 1000x700 plasma:fractal -blur 0x2 bg.png
           convert bg.png -fill '#ff2d95' -draw 'rectangle 40,420 360,660' -fill '#00e5ff' -draw 'circle 760,520 760,640' -fill '#ffe600' -draw 'rectangle 600,40 960,160' bg.png
-          for MODE in default nocomp; do
-            xvfb-run -a -s "-screen 0 1000x700x24 +extension Composite" env MODE=$MODE bash -c '
-              feh --bg-fill bg.png
-              picom --backend xrender --no-fading-openclose --config /dev/null > picom-$MODE.log 2>&1 &
-              sleep 2
-              scrot backdrop-only-$MODE.png
-              if [ "$MODE" = nocomp ]; then export WEBKIT_DISABLE_COMPOSITING_MODE=1; fi
-              ../src-tauri/target/debug/brixalo > app-$MODE.log 2>&1 &
-              APP=$!
-              sleep 12
-              scrot glass-$MODE.png
-              kill $APP || true; pkill picom || true'
-          done
-          ls -la
+          cat > run.sh <<'SH'
+          set -x
+          xdpyinfo -ext Composite | head -5 > xdpy.txt 2>&1 || true
+          feh --no-fehbg --bg-fill bg.png
+          sleep 1
+          scrot -o 0-bg-only.png
+          import -window root 0b-bg-only-import.png || true
+          picom --backend xrender --no-fading-openclose --config /dev/null --log-level debug --log-file picom.log &
+          PIC=$!
+          sleep 3
+          scrot -o 1-bg-with-picom.png
+          kill -0 $PIC && echo picom-alive > picom-state.txt || echo picom-dead > picom-state.txt
+          ../src-tauri/target/debug/brixalo > app.log 2>&1 &
+          APP=$!
+          sleep 12
+          scrot -o 2-glass.png
+          import -window root 2b-glass-import.png || true
+          xwininfo -root -tree > tree.txt 2>&1 || true
+          kill $APP || true; kill $PIC || true
+          SH
+          sed -i 's/^          //' run.sh
+          xvfb-run -a -s "-screen 0 1000x700x24 +extension Composite +extension RENDER" bash run.sh > run.log 2>&1 || true
+          ls -la; cat xdpy.txt picom-state.txt || true; tail -20 run.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
