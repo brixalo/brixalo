@@ -17,15 +17,15 @@ const b = await puppeteer.launch({ executablePath: "/usr/bin/google-chrome", hea
 const pg = await b.newPage(); await pg.setViewport({ width: 900, height: 600 });
 const base = "http://localhost:8766/";
 
-async function cursor(x, y, label) {
-  await pg.evaluate((x, y, label) => {
+async function cursor(x, y, label, labelDx, labelDy) {
+  await pg.evaluate((x, y, label, labelDx, labelDy) => {
     document.getElementById("fakecursor")?.remove();
     const d = document.createElement("div"); d.id = "fakecursor";
     d.style.cssText = `position:fixed;left:${x}px;top:${y}px;z-index:99;pointer-events:none`;
     d.innerHTML = `<svg width="30" height="36" viewBox="0 0 30 36" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))"><path d="M2 2 L2 28 L9 21 L14 33 L19 31 L14 19 L24 19 Z" fill="#fff" stroke="#111" stroke-width="2" stroke-linejoin="round"/></svg>` +
-      (label ? `<div style="position:absolute;left:26px;top:30px;background:#111;color:#fff;font:600 13px system-ui;padding:4px 9px;border-radius:8px;white-space:nowrap">${label}</div>` : "");
+      (label ? `<div style="position:absolute;left:${labelDx ?? 26}px;top:${labelDy ?? 30}px;background:#111;color:#fff;font:600 13px system-ui;padding:4px 9px;border-radius:8px;white-space:nowrap">${label}</div>` : "");
     document.body.append(d);
-  }, x, y, label);
+  }, x, y, label, labelDx, labelDy);
 }
 const shot = async (name) => pg.screenshot({ path: out + name });
 
@@ -36,10 +36,10 @@ await pg.evaluate(() => { const d = new DataTransfer(); d.items.add(new File(["x
 await cursor(400, 300, "birthday.mov"); await shot("03-drag.png");
 await pg.mouse.move(400, 300);
 await pg.evaluate(() => window.dispatchEvent(new DragEvent("drop", { dataTransfer: window.__dt, bubbles: true, cancelable: true, clientX: 400, clientY: 300 })));
-await wait(600); await cursor(400, 300, "the wheel opens here"); await shot("04-wheel.png");
+await wait(600); await cursor(400, 300, "the wheel opens here", -60, 172); await shot("04-wheel.png");
 const box = await (await pg.$('.pg[data-to="mp4"]')).boundingBox();
 const mx = box.x + box.width / 2, my = box.y + box.height / 2;
-await pg.mouse.move(mx, my, { steps: 5 }); await wait(300); await cursor(mx - 5, my + 8, "click MP4"); await shot("05-hover.png");
+await pg.mouse.move(mx, my, { steps: 5 }); await wait(300); await cursor(mx + 34, my - 6, "click MP4", -60, -70); await shot("05-hover.png");
 await pg.mouse.click(mx, my); await wait(1400); await cursor(450, 150, ""); await shot("06-done.png");
 await pg.goto(base + "?theme=glass"); await wait(400);
 await cursor(374, 40, "pick a theme here"); await shot("07-themes.png");

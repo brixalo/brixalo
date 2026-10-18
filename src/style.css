@@ -66,3 +66,7 @@ html[data-glass="1"] .glassbar { display: flex; }
 .glassbar input[type="range"] { width: 110px; accent-color: var(--coral); }
 .glassbar select { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 3px 6px; font: inherit; }
 .themes-path { font-size: 11px; color: var(--mute); }
+
+#caption { position: absolute; transform: translateX(-50%); text-align: center; display: flex; flex-direction: column; gap: 2px; max-width: 420px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; font-size: 12px; color: var(--mute); backdrop-filter: var(--blur); }
+#caption b { color: var(--ink); font-size: 13px; word-break: break-all; }
+.hubicon { font: 800 10px system-ui, sans-serif !important; letter-spacing: 1.5px; }

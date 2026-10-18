@@ -21,7 +21,7 @@ function sector(a0, a1) {
 
 export function openWheel(path, x, y) {
   const targets = targetsFor(path);
-  if (!targets.length) { toast(path, "fail", "Petal can't convert this file type yet."); return; }
+  if (!targets.length) { toast(path, "fail", "Petal can't convert this type yet. It handles images (png, jpg, webp, gif...), video (mp4, mov, mkv, webm...) and audio (mp3, wav, flac...)."); return; }
   const layer = $("wheel-layer");
   const gap = 0.05, n = targets.length, step = (2 * Math.PI) / n;
   const px = Math.min(Math.max(x, 200), innerWidth - 200), py = Math.min(Math.max(y, 200), innerHeight - 200);
@@ -40,11 +40,14 @@ export function openWheel(path, x, y) {
       <text class="plabel" x="${lx}" y="${ly + (t.note ? 0 : 5)}">${t.label}</text>
       ${t.note ? `<text class="pnote" x="${lx}" y="${ly + 15}">${t.note}</text>` : ""}</g>`;
   });
-  const kind = kindOf(path), icon = kind === "image" ? "▣" : kind === "video" ? "▶" : "♪";
+  const kind = kindOf(path), icon = kind === "image" ? "IMAGE" : kind === "video" ? "VIDEO" : "AUDIO";
   svg += `<circle class="hub" cx="${CX}" cy="${CY}" r="${R_IN - 6}"/>
     <text class="hubicon" x="${CX}" y="${CY - 14}">${icon}</text>
     <text class="hubsub" x="${CX}" y="${CY + 4}">convert to</text><text class="hubname" x="${CX}" y="${CY + 21}">${esc(shorten(baseName(path), 13))}</text></svg>`;
-  layer.innerHTML = `<div id="wheel" style="left:${px}px;top:${py}px">${svg}</div>`;
+  layer.innerHTML = `<div id="wheel" style="left:${px}px;top:${py}px">${svg}</div><div id="caption" role="status" style="left:${px}px;top:${py + 205}px"><b>${esc(baseName(path))}</b><span>Pick a format. The new file is saved next to the original.</span></div>`;
+  const cap = layer.querySelector("#caption");
+  const captionFor = (to) => `<b>${esc(baseName(path))}</b><span>to ${to.toUpperCase()} - saved next to the original, which stays untouched</span>`;
+  layer.querySelectorAll(".pg").forEach((g) => { g.addEventListener("pointerenter", () => { cap.innerHTML = captionFor(g.dataset.to); }); g.addEventListener("focus", () => { cap.innerHTML = captionFor(g.dataset.to); }); });
   layer.style.setProperty("--cx", px + "px"); layer.style.setProperty("--cy", py + "px"); layer.hidden = false;
   layer.onclick = (e) => {
     const p = e.target.closest(".pg");
@@ -92,13 +95,13 @@ function toast(path, cls, msg, id) {
 let jobSeq = 0;
 async function runJob(path, to) {
   const kind = kindOf(path), id = "job" + ++jobSeq;
-  if (!T) { toast(path, "run", `converting to ${to}...`, id); setTimeout(() => toast(path, "done", `preview only, no file written`, id), 900); return; }
+  if (!T) { toast(path, "run", `Converting to ${to.toUpperCase()}...`, id); setTimeout(() => toast(path, "done", "Demo only: the browser demo does not write files", id), 900); return; }
   try {
-    toast(path, "run", `converting to ${to}...`, id);
+    toast(path, "run", `Converting to ${to.toUpperCase()}...`, id);
     const out = await T.core.invoke("plan_output", { input: path, to });
     const { engine, args } = buildCommand(kind, to, path, out);
-    await T.core.invoke("run_engine", { engine, args });
-    toast(path, "done", `saved ${baseName(out)}`, id);
+    await T.core.invoke("run_engine", { engine, args, output: out });
+    toast(path, "done", `Saved as ${baseName(out)}`, id);
   } catch (e) { toast(path, "fail", String(e), id); }
 }
 
@@ -119,7 +122,7 @@ if (T && T.webview) {
   });
   T.core.invoke("engine_status").then((s) => { const e = $("engine"); e.textContent = s; e.className = "engine " + (/missing/.test(s) ? "bad" : "ok"); });
 } else {
-  $("engine").textContent = "preview mode (no engine)";
+  $("engine").textContent = "";
   addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
   addEventListener("dragleave", () => drop.classList.remove("over"));
   addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) handle(f.name, e.clientX, e.clientY); });
@@ -133,3 +136,14 @@ const q = new URLSearchParams(location.search);
 if (q.get("open")) handle(q.get("open"), +q.get("x") || innerWidth / 2, +q.get("y") || innerHeight / 2);
 
 if (q.get("hover")) setTimeout(() => { const g = document.querySelectorAll(".pg")[+q.get("hover")]; if (g) g.classList.add("focus"); }, 50);
+
+// End-to-end test hook for the compiled app (CI sets PETAL_E2E_FILE). It drives the same
+// wheel and click path a user does; only the operating-system drag gesture is skipped.
+if (T) {
+  T.core.invoke("e2e_request").then((req) => {
+    if (!req) return;
+    const [file, to, delay] = req;
+    openWheel(file, innerWidth / 2, innerHeight / 2 - 40);
+    if (to) setTimeout(() => document.querySelector(`.pg[data-to="${to}"]`)?.dispatchEvent(new MouseEvent("click", { bubbles: true })), Number(delay) || 1500);
+  });
+}
