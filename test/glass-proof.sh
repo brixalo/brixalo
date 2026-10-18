@@ -25,4 +25,16 @@ APP=$!
 sleep 40
 scrot -o 2-with-compositor-blur.png
 xwininfo -root -tree > tree2.txt 2>&1 || true
+kill $APP || true; kill $PIC || true
+sleep 2
+# Compositor with GL dual-kawase blur (the strong, Apple-like blur)
+printf 'backend = "glx";\nblur-method = "dual_kawase";\nblur-strength = 9;\nblur-background = true;\nblur-background-frame = true;\nglx-no-stencil = true;\n' > picom-gl.conf
+picom --config picom-gl.conf --no-fading-openclose --log-level debug --log-file picom3.log &
+PIC=$!
+sleep 4
+echo picom-gl-alive-check; kill -0 $PIC && echo alive > picom3-state.txt || echo dead > picom3-state.txt
+../src-tauri/target/debug/brixalo > app3.log 2>&1 &
+APP=$!
+sleep 40
+scrot -o 3-gl-dual-kawase-blur.png
 kill $APP || true; kill $PIC || true; kill $BG || true
