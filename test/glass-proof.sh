@@ -1,7 +1,8 @@
 set -x
 xdpyinfo -ext Composite | head -5 > xdpy.txt 2>&1 || true
-display -window root bg.png
-sleep 1
+display -geometry +0+0 -borderwidth 0 bg.png &
+BG=$!
+sleep 2
 scrot -o 0-bg-only.png
 ../src-tauri/target/debug/brixalo > app-nocomp.log 2>&1 &
 APP=$!
@@ -19,4 +20,4 @@ APP=$!
 sleep 12
 scrot -o 3-glass.png
 xwininfo -root -tree > tree2.txt 2>&1 || true
-kill $APP || true; kill $PIC || true
+kill $APP || true; kill $PIC || true; kill $BG || true
