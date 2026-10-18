@@ -72,7 +72,7 @@ export function buildCommand(kind, to, input, output) {
     args.push(output);
     return { engine: "imagemagick", args };
   }
-  const base = ["-y", "-hide_banner", "-loglevel", "error", "-i", input];
+  const base = ["-nostdin", "-y", "-hide_banner", "-loglevel", "error", "-i", input];
   if (kind === "video") {
     switch (to) {
       case "mp4":

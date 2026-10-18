@@ -187,7 +187,7 @@ mod tests {
         assert!(ok.success());
         let before = fs::read(&input).unwrap();
         let out = d.join("tone.mp3").to_string_lossy().to_string();
-        let args = vec!["-y".into(), "-loglevel".into(), "error".into(), "-i".into(), input.to_string_lossy().to_string(), "-c:a".into(), "libmp3lame".into(), out.clone()];
+        let args = vec!["-nostdin".into(), "-y".into(), "-loglevel".into(), "error".into(), "-i".into(), input.to_string_lossy().to_string(), "-c:a".into(), "libmp3lame".into(), out.clone()];
         run_engine("ffmpeg".into(), args, out.clone()).unwrap();
         assert!(fs::metadata(&out).unwrap().len() > 0);
         assert_eq!(before, fs::read(&input).unwrap());
@@ -211,7 +211,7 @@ mod tests {
         let input = d.join("fake.mp4");
         fs::write(&input, b"not a video").unwrap();
         let out = d.join("fake.webm").to_string_lossy().to_string();
-        let args = vec!["-y".into(), "-loglevel".into(), "error".into(), "-i".into(), input.to_string_lossy().to_string(), out.clone()];
+        let args = vec!["-nostdin".into(), "-y".into(), "-loglevel".into(), "error".into(), "-i".into(), input.to_string_lossy().to_string(), out.clone()];
         let r = run_engine("ffmpeg".into(), args, out.clone());
         assert!(r.is_err());
         assert!(!Path::new(&out).exists());
