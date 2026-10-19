@@ -1,0 +1,22 @@
+// Browser UI test with a local adapter executing real FFmpeg/ImageMagick metadata commands.
+// This verifies the UI, not Rust/Tauri IPC. CI owns the native app build.
+import http from 'node:http';import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';import {extname,join} from 'node:path';import {spawnSync} from 'node:child_process';import assert from 'node:assert/strict';import puppeteer from 'puppeteer-core';
+const root=new URL('../src/',import.meta.url).pathname,out='/tmp/brixalo-proof';mkdirSync(out,{recursive:true});
+const run=(b,a)=>{const r=spawnSync(b,a,{encoding:'utf8'});if(r.status!==0)throw Error(r.stderr);return r.stdout;};
+const file=out+'/recording.wav';run('ffmpeg',['-y','-v','error','-f','lavfi','-i','sine=duration=60','-c:a','pcm_s24le',file]);
+const metadata=JSON.parse(run('ffprobe',['-v','error','-show_format','-show_streams','-of','json',file]));
+const encoders=run('ffmpeg',['-hide_banner','-encoders']).split('\n').map(x=>x.trim().split(/\s+/)).filter(x=>x[0]?.length===6).map(x=>x[1]);
+const srv=http.createServer((req,res)=>{try{const p=join(root,req.url.split('?')[0]==='/'?'index.html':req.url.split('?')[0]);res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.html':'text/html','.json':'application/json'}[extname(p)]||'text/plain'));res.end(readFileSync(p));}catch{res.statusCode=404;res.end();}}).listen(8766);
+const browser=await puppeteer.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox','--disable-gpu']});const page=await browser.newPage();await page.setViewport({width:1000,height:800});let errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.evaluateOnNewDocument((raw,caps,file)=>{window.__TAURI__={core:{invoke:async(cmd)=>{
+ if(cmd==='inspect_file')return raw;if(cmd==='media_capabilities')return caps;if(cmd==='list_user_themes')return [];if(cmd==='set_glass')return 'preview';if(cmd==='e2e_request')return null;if(cmd==='engine_status')return 'FFmpeg + ImageMagick ready';return null;}},dialog:{open:async()=>file}};},metadata,{encoders,image_write:[]},file);
+await page.goto('http://localhost:8766/?theme=dark');await page.waitForSelector('#inspect-pick');await page.click('#inspect-pick');await page.waitForSelector('#output-format');await page.select('#output-format','mp3');await page.select('#convert-bitrate','128');await page.screenshot({path:out+'/audio-inspector.png'});
+assert((await page.$eval('#conversion-advice',e=>e.innerText)).includes('permanently discarded'));assert((await page.$eval('.source-facts',e=>e.innerText)).includes('lossless codec'));
+await page.select('#convert-mode','lossless');assert(await page.$eval('#convert-submit',e=>e.disabled));await page.select('#output-format','flac');assert.equal(await page.$eval('#convert-submit',e=>e.disabled),false);
+await page.select('#output-format','mp3');await page.select('#convert-mode','size');await page.$eval('#convert-target',e=>{e.value='.1';e.dispatchEvent(new Event('input',{bubbles:true}));});assert(await page.$eval('#convert-submit',e=>e.disabled));await page.screenshot({path:out+'/impossible-size.png'});
+await page.setViewport({width:640,height:560});await page.select('#convert-mode','balanced');await page.screenshot({path:out+'/small-window.png'});
+await page.click('#close-conversion');await page.setViewport({width:1000,height:800});
+await page.click('#byte-tool');await page.type('#byte-input','Hello 👾');await page.click('#byte-convert');assert((await page.$eval('#byte-output',e=>e.value)).startsWith('01001000'));await page.screenshot({path:out+'/byte-tool.png'});await page.click('#close-viewer');
+await page.click('#decoder-tool');await page.type('#decode-input','SGVsbG8gd29ybGQ=');await page.click('#decode-run');assert((await page.$eval('#decode-results',e=>e.innerText)).includes('Hello world'));await page.screenshot({path:out+'/decoder.png'});await page.click('#close-decoder');
+await page.click('#crypto-tool');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('X25519'));await page.screenshot({path:out+'/encryption.png'});await page.click('#close-crypto');
+assert.deepEqual(errors,[]);console.log('PASS UI: real source metadata, lossy warning, estimates, invalid-size/lossless gating, small window, no JS errors');await browser.close();srv.close();

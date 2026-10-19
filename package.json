@@ -6,7 +6,9 @@
   "scripts": {
     "tauri": "tauri",
     "test": "node test/offline.test.mjs && node test/engine.test.mjs",
-    "shots": "node test/screenshots.mjs"
+    "shots": "node test/screenshots.mjs",
+    "test:age": "node test/age.test.mjs",
+    "test:ui": "node test/inspector-ui.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

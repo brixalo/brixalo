@@ -1,7 +1,15 @@
+import {initDecoder} from "./decoder.js";
+import {initCrypto} from "./crypto.js";
+import {initViewer} from "./viewer.js";
+import { configureConversion } from "./inspector.js";
+import { conversionCommand, recipe } from "./media.js";
 import { themes, loadThemes, applyTheme, savedThemeId, glassSettings, saveGlass } from "./themes.js";
 import { kindOf, targetsFor, baseName, buildCommand, outputPath } from "./formats.js";
 
 const T = window.__TAURI__ || null;
+initViewer(T);
+initCrypto(T);
+initDecoder();
 const $ = (id) => document.getElementById(id);
 let shiftHeld = false;
 let lastPos = { x: innerWidth / 2, y: innerHeight / 2 };
@@ -21,7 +29,7 @@ function sector(a0, a1) {
 
 export function openWheel(path, x, y) {
   const targets = targetsFor(path);
-  if (!targets.length) { toast(path, "fail", "Brixalo can't convert this type yet. It handles images (png, jpg, webp, gif...), video (mp4, mov, mkv, webm...) and audio (mp3, wav, flac...)."); return; }
+  if (!targets.length) { configureConversion(path, null, T, (info,to,options)=>runJob(path,to,info,options)); return; }
   const layer = $("wheel-layer");
   const gap = 0.05, n = targets.length, step = (2 * Math.PI) / n;
   const px = Math.min(Math.max(x, 200), innerWidth - 200), py = Math.min(Math.max(y, 200), innerHeight - 200);
@@ -44,14 +52,14 @@ export function openWheel(path, x, y) {
   svg += `<circle class="hub" cx="${CX}" cy="${CY}" r="${R_IN - 6}"/>
     <text class="hubicon" x="${CX}" y="${CY - 14}">${icon}</text>
     <text class="hubsub" x="${CX}" y="${CY + 4}">convert to</text><text class="hubname" x="${CX}" y="${CY + 21}">${esc(shorten(baseName(path), 13))}</text></svg>`;
-  layer.innerHTML = `<div id="wheel" style="left:${px}px;top:${py}px">${svg}</div><div id="caption" role="status" style="left:${px}px;top:${py + 205}px"><b>${esc(baseName(path))}</b><span>Pick a format. The new file is saved next to the original.</span></div>`;
+  layer.innerHTML = `<div id="wheel" style="left:${px}px;top:${py}px">${svg}</div><div id="caption" role="status" style="left:${px}px;top:${py + 205}px"><b>${esc(baseName(path))}</b><span>Pick a format, then inspect the source and choose quality or size.</span></div>`;
   const cap = layer.querySelector("#caption");
   const captionFor = (to) => `<b>${esc(baseName(path))}</b><span>to ${to.toUpperCase()} - saved next to the original, which stays untouched</span>`;
   layer.querySelectorAll(".pg").forEach((g) => { g.addEventListener("pointerenter", () => { cap.innerHTML = captionFor(g.dataset.to); }); g.addEventListener("focus", () => { cap.innerHTML = captionFor(g.dataset.to); }); });
   layer.style.setProperty("--cx", px + "px"); layer.style.setProperty("--cy", py + "px"); layer.hidden = false;
   layer.onclick = (e) => {
     const p = e.target.closest(".pg");
-    if (p) { closeWheel(); runJob(path, p.dataset.to); }
+    if (p) { closeWheel(); configureConversion(path, p.dataset.to, T, (info,to,options)=>runJob(path,to,info,options)); }
     else if (!e.target.closest("#wheel") || e.target.classList.contains("hub")) closeWheel();
   };
   layer.querySelectorAll(".pg").forEach((p) => p.addEventListener("keydown", (e) => { if (e.key === "Enter") p.dispatchEvent(new MouseEvent("click", { bubbles: true })); }));
@@ -93,20 +101,24 @@ function toast(path, cls, msg, id) {
   el.innerHTML = `<div><b>${esc(baseName(path))}</b><div class="err">${cls === "fail" ? esc(msg) : ""}</div></div><div class="st">${cls === "fail" ? "failed" : esc(msg)}</div>`;
 }
 let jobSeq = 0;
-async function runJob(path, to) {
+async function runJob(path, to, info, options) {
   const kind = kindOf(path), id = "job" + ++jobSeq;
   if (!T) { toast(path, "run", `Converting to ${to.toUpperCase()}...`, id); setTimeout(() => toast(path, "done", "Demo only: the browser demo does not write files", id), 900); return; }
   try {
     toast(path, "run", `Converting to ${to.toUpperCase()}...`, id);
-    const out = await T.core.invoke("plan_output", { input: path, to });
-    const { engine, args } = buildCommand(kind, to, path, out);
+    const out = await T.core.invoke("plan_output", { input: path, to: recipe(info.kind,to).extension||to });
+    const { engine, args } = conversionCommand(info, to, path, out, options);
     await T.core.invoke("run_engine", { engine, args, output: out });
-    toast(path, "done", `Saved as ${baseName(out)}`, id);
+    const raw = await T.core.invoke("inspect_file", { input: out }).catch(()=>null);
+    const size = Number(raw?.size_bytes||raw?.format?.size);
+    toast(path, "done", `Saved as ${baseName(out)}${size?` · ${(size/1e6).toFixed(2)} MB`:""}`, id);
   } catch (e) { toast(path, "fail", String(e), id); }
 }
 
 // ---------- input ----------
 const drop = $("drop");
+$("close-conversion").addEventListener("click",()=>$("conversion-dialog").close());
+$("inspect-pick").addEventListener("click",async()=>{if(T?.dialog){const f=await T.dialog.open({multiple:false});if(f)configureConversion(f,null,T,(info,to,options)=>runJob(f,to,info,options));}else configureConversion("preview.flac",null,T,()=>{});});
 function handle(path, x, y) { openWheel(path, x ?? lastPos.x, y ?? lastPos.y); }
 
 if (T && T.webview) {
@@ -145,5 +157,6 @@ if (T) {
     const [file, to, delay] = req;
     openWheel(file, innerWidth / 2, innerHeight / 2 - 40);
     if (to) setTimeout(() => document.querySelector(`.pg[data-to="${to}"]`)?.dispatchEvent(new MouseEvent("click", { bubbles: true })), Number(delay) || 1500);
+    if(to) setTimeout(()=>document.getElementById("convert-submit")?.click(),(Number(delay)||1500)+4000);
   });
 }

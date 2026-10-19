@@ -1,0 +1,17 @@
+// Standard age CLI integration only. Private identities remain local and never enter chat.
+export function initCrypto(T){
+ const dialog=document.getElementById('crypto-dialog'),body=document.getElementById('crypto-body');document.getElementById('close-crypto').onclick=()=>dialog.close();
+ document.getElementById('crypto-tool').onclick=()=>{
+  dialog.showModal();body.innerHTML='<h2>Encrypt / decrypt a file</h2><p>Uses the standard age file format with X25519 recipients. Requires age installed locally. No server or account; not a messaging service or a corporate compliance guarantee.</p><label>Action<select id="crypto-mode"><option value="encrypt">Encrypt for a recipient</option><option value="decrypt">Decrypt with my identity file</option></select></label><label id="recipient-label">Recipient public key<input id="crypto-recipient" placeholder="age1... (public key only)"></label><p>Never paste a private key here. For decryption choose your local identity file. Back it up securely: losing it means losing access. Verify the recipient key using a trusted channel; encryption does not prove who sent the file.</p><button id="crypto-run">Choose input and save destination</button><p id="crypto-status" role="status"></p>';
+  const mode=document.getElementById('crypto-mode');mode.onchange=()=>document.getElementById('recipient-label').hidden=mode.value==='decrypt';
+  document.getElementById('crypto-run').onclick=async()=>{
+   const status=document.getElementById('crypto-status'),button=document.getElementById('crypto-run');
+   try{if(!T?.dialog)throw Error('Use the desktop app with age installed.');const action=mode.value,recipient=document.getElementById('crypto-recipient').value.trim();if(action==='encrypt'&&!/^age1[0-9a-z]{58}$/.test(recipient))throw Error('Enter an age X25519 public recipient key (age1...).');
+    const input=await T.dialog.open({multiple:false,title:'Choose a file to '+action});if(!input)return;
+    const identity=action==='decrypt'?await T.dialog.open({multiple:false,title:'Choose your age private identity file (kept local)'}):null;if(action==='decrypt'&&!identity)return;
+    const output=await T.dialog.save({title:'Save '+(action==='encrypt'?'encrypted':'decrypted')+' copy',defaultPath:input+(action==='encrypt'?'.age':'.decrypted')});if(!output)return;
+    button.disabled=true;status.textContent='Working locally. Do not close the app...';await T.core.invoke('age_file',{input,output,recipient:action==='encrypt'?recipient:null,identity,action});status.textContent='Saved a new '+(action==='encrypt'?'encrypted':'decrypted')+' copy. Original kept. Files remain sensitive after decryption.';
+   }catch(e){status.textContent=String(e);}finally{button.disabled=false;}
+  };
+ };
+}

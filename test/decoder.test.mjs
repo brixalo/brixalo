@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';import {decodeCandidates,toyEncode,toyDecode} from '../src/decoder.js';
+for(const [input,want]of [['SGVsbG8gd29ybGQ=','Hello world'],['48656c6c6f','Hello'],['01001000 01101001','Hi'],['%48ello%20world','Hello world'],['&lt;hello&gt;','<hello>'],['.... . .-.. .-.. --- / .-- --- .-. .-.. -..','HELLO WORLD'],['Uryyb jbeyq','Hello world'],['JBSWY3DPEBLW64TMMQ======','Hello World']])assert(decodeCandidates(input).candidates.some(x=>x.value.toLowerCase()===want.toLowerCase()),input);
+for(const s of ['Hello 👾','नमस्ते',''])assert.equal(toyDecode(toyEncode(s)),s);
+assert(decodeCandidates('a'.repeat(64)).hints[0].includes('not proof'));assert.throws(()=>decodeCandidates('a'.repeat(16385)));console.log('PASS known encodings/classic candidates, Unicode toy round trips, hash hints and input bound');

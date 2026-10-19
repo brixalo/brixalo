@@ -93,4 +93,7 @@ const taken = new Set([join(dir, "dup.jpg"), join(dir, "dup (1).jpg")]);
 check(outputPath(join(dir, "dup.png"), "jpg", (p) => taken.has(p)) === join(dir, "dup (2).jpg"), "output name skips taken names");
 
 console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+if(fail)process.exit(1);
+await import("./media.test.mjs");
+await import("./bytes.test.mjs");
+await import("./decoder.test.mjs");
