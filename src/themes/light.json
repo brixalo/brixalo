@@ -8,7 +8,7 @@
     "--ink": "#242030",
     "--mute": "#6d667d",
     "--line": "#ded9e8",
-    "--coral": "#6f47c7",
+    "--accent": "#6f47c7",
     "--teal": "#577136",
     "--on-accent": "#ffffff",
     "--on-accent-soft": "#ffffff",

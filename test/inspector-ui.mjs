@@ -20,4 +20,15 @@ await page.click('#view-pick');await page.waitForSelector('#viewer-body textarea
 await page.click('#byte-tool');await page.type('#byte-input','Hello 👾');await page.click('#byte-convert');assert((await page.$eval('#byte-output',e=>e.value)).startsWith('01001000'));await page.screenshot({path:out+'/byte-tool.png'});await page.click('#close-viewer');
 await page.click('#decoder-tool');await page.type('#decode-input','SGVsbG8gd29ybGQ=');await page.click('#decode-run');assert((await page.$eval('#decode-results',e=>e.innerText)).includes('Hello world'));await page.screenshot({path:out+'/decoder.png'});await page.click('#close-decoder');
 await page.click('#crypto-tool');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('X25519'));assert.equal(await page.$eval('#crypto-security',e=>e.value),'advanced');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('adds no proven security'));await page.screenshot({path:out+'/encryption.png'});await page.click('#close-crypto');
+// Theme, tint and shade controls persist and change surface density.
+for(const theme of ['dark','light','glass']){
+ await page.click(`[data-theme="${theme}"]`);assert.equal(await page.$eval('html',e=>e.dataset.theme),theme);
+ await page.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-'+theme+'.png'});
+}
+const soft=await page.select('#shade','soft');const before=await page.$eval('html',e=>e.style.getPropertyValue('--p0'));
+await page.select('#shade','deep');assert.notEqual(await page.$eval('html',e=>e.style.getPropertyValue('--p0')),before);
+await page.select('#tint','light');assert.equal(await page.$eval('html',e=>e.style.colorScheme),'light');await page.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-light.png'});
+await page.goto('http://localhost:8766/');await page.waitForSelector('[data-theme=glass][aria-pressed=true]');assert.equal(await page.$eval('#shade',e=>e.value),'deep');assert.equal(await page.$eval('#tint',e=>e.value),'light');
+await page.setViewport({width:640,height:560});await page.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-small.png'});
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
 assert.deepEqual(errors,[]);console.log('PASS UI: real source metadata, lossy warning, estimates, invalid-size/lossless gating, small window, no JS errors');await browser.close();srv.close();

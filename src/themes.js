@@ -28,7 +28,7 @@ function validTheme(t) {
 }
 
 export function glassSettings() {
-  try { return { alpha: 50, tint: "dark", ...JSON.parse(localStorage.getItem(GLASS_STORE) || "{}") }; } catch { return { alpha: 50, tint: "dark" }; }
+  try { return { alpha: 50, tint: "dark", shade: "balanced", ...JSON.parse(localStorage.getItem(GLASS_STORE) || "{}") }; } catch { return { alpha: 50, tint: "dark", shade: "balanced" }; }
 }
 
 export function saveGlass(s) {
@@ -44,15 +44,17 @@ export function applyTheme(id, glass = glassSettings()) {
   let vars = t.vars || {};
   if (t.glass) {
     const tint = t.tints[glass.tint] || t.tints.dark;
-    const a = Math.min(1, Math.max(0.15, glass.alpha / 100));
+    const base = Math.min(1, Math.max(0.15, glass.alpha / 100));
+    const shade = { soft: -0.12, balanced: 0, deep: 0.16 }[glass.shade] || 0;
+    const a = Math.min(1, Math.max(0.15, base + shade));
     vars = {
       ...tint,
       "--p0": `rgba(${tint["--rgb0"]},${a})`, "--p1": `rgba(${tint["--rgb1"]},${a})`,
       "--hub0": `rgba(${tint["--hub-rgb0"]},${Math.min(1, a + 0.2)})`, "--hub1": `rgba(${tint["--hub-rgb1"]},${Math.min(1, a + 0.2)})`,
       "--veil": `radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), rgba(${tint["--veil-rgb"]},${0.2 + a * 0.25}), rgba(${tint["--veil-rgb"]},${0.45 + a * 0.4}))`,
-      "--blur": `blur(${Math.round(2 + (1 - a) * 8)}px)`,
+      "--blur": `blur(${Math.round(16 + (1 - a) * 16)}px)`,
       // Window fill: the lower the slider, the more of the desktop shows through.
-      "--page": `radial-gradient(700px 420px at 12% -8%, rgba(185,160,255,${(0.16 * a).toFixed(3)}), transparent), linear-gradient(160deg, rgba(${tint["--rgb1"]},${(0.08 + 0.8 * a).toFixed(3)}), rgba(${tint["--hub-rgb1"]},${(0.1 + 0.8 * a).toFixed(3)}))`,
+      "--page": `radial-gradient(ellipse at 8% 0%, rgba(142,110,210,.22), transparent 60%), radial-gradient(ellipse at 100% 100%, rgba(160,180,115,.13), transparent 65%), linear-gradient(160deg, rgba(${tint["--rgb1"]},${(0.08 + 0.8 * a).toFixed(3)}), rgba(${tint["--hub-rgb1"]},${(0.1 + 0.8 * a).toFixed(3)}))`,
       "--card": `rgba(${tint["--rgb0"]},${(0.2 + 0.5 * a).toFixed(3)})`,
     };
   }
@@ -60,6 +62,8 @@ export function applyTheme(id, glass = glassSettings()) {
   root.style.colorScheme = (t.glass ? glass.tint : t.scheme) === "light" ? "light" : "dark";
   root.dataset.theme = t.id;
   root.dataset.glass = t.glass ? "1" : "";
+  root.dataset.tint = t.glass ? glass.tint : t.scheme;
+  root.dataset.shade = t.glass ? (glass.shade || "balanced") : "";
   const T = typeof window !== "undefined" && window.__TAURI__;
   if (T) {
     root.dataset.native = "1";
