@@ -3,10 +3,26 @@
   "name": "Light",
   "scheme": "light",
   "vars": {
-    "--page": "#f4f1ec", "--card": "#ffffff", "--ink": "#1f2430", "--mute": "#6c7385", "--line": "#ddd8cf",
-    "--coral": "#f2604f", "--teal": "#14a898", "--on-accent": "#ffffff", "--on-accent-soft": "#fff1ee",
-    "--p0": "#ffffff", "--p1": "#ffffff", "--hub0": "#f4f1ec", "--hub1": "#f4f1ec", "--hub-edge": "#ddd8cf",
-    "--petal-edge": "#e3ded5", "--shadow": "rgba(60,50,30,.22)", "--veil": "rgba(244,241,236,.78)", "--blur": "blur(3px)",
-    "--halo": "transparent", "--switch-on": "#1f2430", "--switch-ink": "#ffffff"
+    "--page": "#f6f5fa",
+    "--card": "#ffffff",
+    "--ink": "#242030",
+    "--mute": "#6d667d",
+    "--line": "#ded9e8",
+    "--coral": "#6f47c7",
+    "--teal": "#577136",
+    "--on-accent": "#ffffff",
+    "--on-accent-soft": "#ffffff",
+    "--p0": "#ffffff",
+    "--p1": "#ffffff",
+    "--hub0": "#f6f5fa",
+    "--hub1": "#f6f5fa",
+    "--hub-edge": "#ddd8cf",
+    "--petal-edge": "#e3ded5",
+    "--shadow": "rgba(60,50,30,.22)",
+    "--veil": "rgba(244,241,236,.78)",
+    "--blur": "blur(3px)",
+    "--halo": "transparent",
+    "--switch-on": "#1f2430",
+    "--switch-ink": "#ffffff"
   }
 }

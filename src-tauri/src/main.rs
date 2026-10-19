@@ -331,11 +331,11 @@ fn age_file(input: String, output: String, recipient: Option<String>, identity: 
     let mut cmd=Command::new("age");
     if action=="encrypt" {
         let key=recipient.ok_or("Recipient public key is required.")?;
-        if !key.starts_with("age1")||key.len()!=62||!key.chars().all(|c|c.is_ascii_lowercase()||c.is_ascii_digit()){let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Invalid X25519 age recipient.".into());}
+        if !key.starts_with("age1")||key.len()!=62||!key.chars().all(|c|c.is_ascii_lowercase()||c.is_ascii_digit()){let _=std::fs::remove_file(&tmp);return Err("Invalid X25519 age recipient.".into());}
         cmd.args(["-r",&key]);
     }else{
         let key_path=identity.ok_or("Local identity file is required.")?;
-        if !Path::new(&key_path).is_file(){let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Identity file was not found.".into());}
+        if !Path::new(&key_path).is_file(){let _=std::fs::remove_file(&tmp);return Err("Identity file was not found.".into());}
         cmd.args(["-d","-i",&key_path]);
     }
     let mut unwrapped=None;
@@ -345,7 +345,7 @@ fn age_file(input: String, output: String, recipient: Option<String>, identity: 
         if read==8&&header==WRAPPER_HEADER {
             let inner=tmp.with_extension("age-inner");
             let inner_file=std::fs::OpenOptions::new().write(true).create_new(true).open(&inner).map_err(|e|e.to_string())?;
-            if copy_wrapper(std::fs::File::open(source).map_err(|e|e.to_string())?,inner_file,false).is_err(){let _=std::fs::remove_file(&inner);let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Malformed experimental wrapper.".into());}
+            if copy_wrapper(std::fs::File::open(source).map_err(|e|e.to_string())?,inner_file,false).is_err(){let _=std::fs::remove_file(&inner);let _=std::fs::remove_file(&tmp);return Err("Malformed experimental wrapper.".into());}
             unwrapped=Some(inner);
         }
     }

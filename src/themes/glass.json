@@ -5,19 +5,47 @@
   "tints": {
     "dark": {
       "--page": "radial-gradient(1000px 600px at 20% -10%, #1d2540, transparent), radial-gradient(800px 500px at 100% 110%, #2a1a24, transparent), #12151c",
-      "--card": "rgba(27,32,48,.75)", "--ink": "#eef1f7", "--mute": "#8d96ab", "--line": "#2a3147",
-      "--coral": "#ff7a6b", "--teal": "#2ec4b6", "--on-accent": "#16100f", "--on-accent-soft": "#2c1f1d",
-      "--rgb0": "28,34,54", "--rgb1": "38,46,72", "--hub-rgb0": "26,31,49", "--hub-rgb1": "16,19,28",
-      "--hub-edge": "rgba(255,255,255,.1)", "--petal-edge": "rgba(255,255,255,.1)", "--shadow": "rgba(0,0,0,.45)",
-      "--veil-rgb": "10,12,18", "--halo": "rgba(255,122,107,.06)", "--switch-on": "#eef1f7", "--switch-ink": "#12151c"
+      "--card": "rgba(27,32,48,.75)",
+      "--ink": "#f4f2fc",
+      "--mute": "#b0abbc",
+      "--line": "#3b3944",
+      "--coral": "#b9a0ff",
+      "--teal": "#c8d78f",
+      "--on-accent": "#23163e",
+      "--on-accent-soft": "#332348",
+      "--rgb0": "35,33,42",
+      "--rgb1": "44,40,52",
+      "--hub-rgb0": "30,29,35",
+      "--hub-rgb1": "23,24,28",
+      "--hub-edge": "rgba(255,255,255,.1)",
+      "--petal-edge": "rgba(255,255,255,.1)",
+      "--shadow": "rgba(0,0,0,.45)",
+      "--veil-rgb": "20,19,25",
+      "--halo": "rgba(185,160,255,.05)",
+      "--switch-on": "#eef1f7",
+      "--switch-ink": "#12151c"
     },
     "light": {
       "--page": "radial-gradient(1000px 600px at 20% -10%, #ffe9e3, transparent), radial-gradient(800px 500px at 100% 110%, #d8f3ef, transparent), #f4f1ec",
-      "--card": "rgba(255,255,255,.7)", "--ink": "#1f2430", "--mute": "#6c7385", "--line": "#ddd8cf",
-      "--coral": "#f2604f", "--teal": "#14a898", "--on-accent": "#ffffff", "--on-accent-soft": "#fff1ee",
-      "--rgb0": "255,255,255", "--rgb1": "246,243,238", "--hub-rgb0": "250,248,244", "--hub-rgb1": "240,236,229",
-      "--hub-edge": "rgba(0,0,0,.08)", "--petal-edge": "rgba(255,255,255,.7)", "--shadow": "rgba(60,50,30,.2)",
-      "--veil-rgb": "244,241,236", "--halo": "rgba(242,96,79,.06)", "--switch-on": "#1f2430", "--switch-ink": "#ffffff"
+      "--card": "rgba(255,255,255,.7)",
+      "--ink": "#242030",
+      "--mute": "#6d667d",
+      "--line": "#ded9e8",
+      "--coral": "#6f47c7",
+      "--teal": "#577136",
+      "--on-accent": "#ffffff",
+      "--on-accent-soft": "#ffffff",
+      "--rgb0": "255,255,255",
+      "--rgb1": "245,242,250",
+      "--hub-rgb0": "250,248,253",
+      "--hub-rgb1": "245,243,249",
+      "--hub-edge": "rgba(0,0,0,.08)",
+      "--petal-edge": "rgba(255,255,255,.7)",
+      "--shadow": "rgba(60,50,30,.2)",
+      "--veil-rgb": "245,243,249",
+      "--halo": "rgba(185,160,255,.05)",
+      "--switch-on": "#1f2430",
+      "--switch-ink": "#ffffff"
     }
   }
 }

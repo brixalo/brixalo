@@ -52,7 +52,7 @@ export function applyTheme(id, glass = glassSettings()) {
       "--veil": `radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), rgba(${tint["--veil-rgb"]},${0.2 + a * 0.25}), rgba(${tint["--veil-rgb"]},${0.45 + a * 0.4}))`,
       "--blur": `blur(${Math.round(2 + (1 - a) * 8)}px)`,
       // Window fill: the lower the slider, the more of the desktop shows through.
-      "--page": `radial-gradient(700px 420px at 12% -8%, rgba(255,122,107,${(0.16 * a).toFixed(3)}), transparent), linear-gradient(160deg, rgba(${tint["--rgb1"]},${(0.08 + 0.8 * a).toFixed(3)}), rgba(${tint["--hub-rgb1"]},${(0.1 + 0.8 * a).toFixed(3)}))`,
+      "--page": `radial-gradient(700px 420px at 12% -8%, rgba(185,160,255,${(0.16 * a).toFixed(3)}), transparent), linear-gradient(160deg, rgba(${tint["--rgb1"]},${(0.08 + 0.8 * a).toFixed(3)}), rgba(${tint["--hub-rgb1"]},${(0.1 + 0.8 * a).toFixed(3)}))`,
       "--card": `rgba(${tint["--rgb0"]},${(0.2 + 0.5 * a).toFixed(3)})`,
     };
   }
