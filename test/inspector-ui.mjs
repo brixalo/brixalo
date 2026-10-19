@@ -22,16 +22,24 @@ await page.click('#decoder-tool');await page.type('#decode-input','SGVsbG8gd29yb
 await page.click('#crypto-tool');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('X25519'));assert.equal(await page.$eval('#crypto-security',e=>e.value),'advanced');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('adds no proven security'));await page.screenshot({path:out+'/encryption.png'});await page.click('#close-crypto');
 // Appearance settings stay out of the main view and persist across reloads.
 assert.equal(await page.$eval('#settings-dialog',e=>e.open),false);
-await page.screenshot({path:out+'/main-clean.png'});await page.click('#settings-open');
+await page.screenshot({path:out+'/main-clean.png'});await page.click('#settings-open');await page.waitForFunction(()=>document.querySelector('#settings-dialog').open&&!document.querySelector('#settings-dialog').getAnimations().length);
 for(const theme of ['dark','light','glass']){
  await page.click(`.themes button[data-theme="${theme}"]`);assert.equal(await page.$eval('html',e=>e.dataset.theme),theme);
- await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/settings-'+theme+'.png'});await page.click('#settings-close');await page.screenshot({path:out+'/theme-'+theme+'.png'});await page.click('#settings-open');
+ await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/settings-'+theme+'.png'});await page.click('#settings-close');await page.waitForFunction(()=>!document.querySelector('#settings-dialog').open);await page.screenshot({path:out+'/theme-'+theme+'.png'});await page.click('#settings-open');await page.waitForFunction(()=>document.querySelector('#settings-dialog').open&&!document.querySelector('#settings-dialog').getAnimations().length);
 }
 const before=await page.$eval('html',e=>e.style.getPropertyValue('--p0'));
 await page.$eval('#alpha',e=>{e.value=80;e.dispatchEvent(new Event('input',{bubbles:true}));});assert.notEqual(await page.$eval('html',e=>e.style.getPropertyValue('--p0')),before);
 await page.$eval('#foreground',e=>{e.value=75;e.dispatchEvent(new Event('input',{bubbles:true}));});
-await page.goto('http://localhost:8766/');await page.waitForSelector('#settings-open');await page.click('#settings-open');await page.waitForSelector('[data-theme=glass][aria-pressed=true]');assert.equal(await page.$eval('#alpha',e=>e.value),'80');assert.equal(await page.$eval('#foreground',e=>e.value),'75');
-await page.click('#settings-close');await page.setViewport({width:640,height:560});await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-small.png'});
+await page.goto('http://localhost:8766/');await page.waitForSelector('#settings-open');await page.click('#settings-open');await page.waitForFunction(()=>document.querySelector('#settings-dialog').open&&!document.querySelector('#settings-dialog').getAnimations().length);await page.waitForSelector('[data-theme=glass][aria-pressed=true]');assert.equal(await page.$eval('#alpha',e=>e.value),'80');assert.equal(await page.$eval('#foreground',e=>e.value),'75');
+await page.click('#settings-close');await page.waitForFunction(()=>!document.querySelector('#settings-dialog').open);await page.setViewport({width:640,height:560});await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-small.png'});
 assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
 assert.equal(await page.$eval('#drop',e=>getComputedStyle(e).backdropFilter),'none');
+await page.keyboard.press('Tab');await page.focus('#settings-open');assert.equal(await page.$eval('#settings-hint',e=>getComputedStyle(e).visibility),'visible');await page.hover('#settings-open');await page.waitForFunction(()=>getComputedStyle(document.querySelector('#settings-hint')).opacity==='1');await page.screenshot({path:out+'/dial-tooltip.png'});
+await page.mouse.wheel({deltaY:50});await page.waitForFunction(()=>document.querySelector('#settings-dialog').open&&!document.querySelector('#settings-dialog').getAnimations().length);await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#settings-dialog').open);assert.equal(await page.$eval('#settings-open',e=>e===document.activeElement),true);
+// Record real opening and closing frames with full-motion enabled.
+await page.setViewport({width:1000,height:800});
+let frame=0;const capture=async()=>page.screenshot({path:out+'/vault-'+String(frame++).padStart(3,'0')+'.png'});
+await capture();await page.click('#settings-open');for(let i=0;i<8;i++)await capture();
+await page.waitForFunction(()=>!document.querySelector('#settings-dialog').getAnimations().length);await capture();await page.click('#settings-close');for(let i=0;i<7;i++)await capture();await page.waitForFunction(()=>!document.querySelector('#settings-dialog').open);await capture();
+await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);await page.click('#settings-open');await page.waitForFunction(()=>!document.querySelector('#settings-dialog').getAnimations().length);await page.click('#settings-close');await page.waitForFunction(()=>!document.querySelector('#settings-dialog').open);
 assert.deepEqual(errors,[]);console.log('PASS UI: real source metadata, lossy warning, estimates, invalid-size/lossless gating, small window, no JS errors');await browser.close();srv.close();

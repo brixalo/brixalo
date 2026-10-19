@@ -91,8 +91,22 @@ function chooseTheme(id) {
   document.querySelectorAll(".themes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === document.documentElement.dataset.theme)));
 }
 await initThemes();
-$("settings-open").addEventListener("click",()=>$("settings-dialog").showModal());
-$("settings-close").addEventListener("click",()=>$("settings-dialog").close());
+let settingsBusy=false;
+async function setSettings(open){
+  if(settingsBusy)return;settingsBusy=true;
+  const dialog=$("settings-dialog"),dial=$("settings-open"),reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(open)dialog.showModal();
+  dial.setAttribute('aria-expanded',String(open));
+  const frames=reduce?[{opacity:open?0:1},{opacity:open?1:0}]:open?
+    [{opacity:0,transform:'perspective(900px) rotateY(-16deg) scale(.90) translateY(12px)'},{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1) translateY(0)'}]:
+    [{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1)'},{opacity:0,transform:'perspective(900px) rotateY(12deg) scale(.94) translateY(8px)'}];
+  await dialog.animate(frames,{duration:reduce?90:open?420:300,easing:'cubic-bezier(.2,.75,.25,1)',fill:'none'}).finished.catch(()=>{});
+  if(!open){dialog.close();dial.focus();}settingsBusy=false;
+}
+$("settings-open").addEventListener("click",()=>setSettings(true));
+$("settings-open").addEventListener('wheel',e=>{e.preventDefault();setSettings(true);},{passive:false});
+$("settings-close").addEventListener("click",()=>setSettings(false));
+$("settings-dialog").addEventListener('cancel',e=>{e.preventDefault();setSettings(false);});
 
 // ---------- jobs ----------
 function toast(path, cls, msg, id) {
