@@ -2,12 +2,14 @@
 
 Brixalo converts pictures, videos and music. You drop a file, a wheel opens under your cursor, you click the format you want. That is the whole app. Nothing is uploaded: the conversion happens on your own computer.
 
-## 1. Set up (one time, about 5 minutes)
+## 1. Set up
+
+This is an early prototype. No release is published yet. Build from source using the README, or use a matching installer artifact from a successful GitHub Actions run. Installers are unsigned.
 
 **Step 1. Install Brixalo.** Download the installer for your computer and open it:
 - Windows: the `.msi` or `-setup.exe` file
 - Mac: the `.dmg` file. Drag Brixalo into Applications. The first time, right-click Brixalo and choose Open (Brixalo is not signed yet, so the Mac asks once).
-- Linux: the `.deb` file (Ubuntu, Debian) or the `.AppImage` file (everything else)
+- Linux: the `.deb` file (Ubuntu, Debian) or the `.AppImage` file (on compatible Linux systems)
 
 **Step 2. Install the two helper tools.** Brixalo uses two free programs to do the real work, FFmpeg (video and audio) and ImageMagick (pictures).
 - Windows: open the Start menu, type `cmd`, open it and run `winget install Gyan.FFmpeg ImageMagick.ImageMagick`
@@ -36,7 +38,7 @@ When you drag a file over the window, the box lights up to say "drop it here".
 
 ![Hovering a petal](img/05-hover.png)
 
-**Step 4. Done.** A line at the bottom says "saved" with the new file name. The new file is in the same folder as the original, with the same name and the new ending. Your original is never changed or replaced. If the name is taken, Brixalo adds (1), (2) and so on.
+**Step 4. Done.** A line at the bottom says "saved" with the new file name. The new file is in the same folder as the original, with the same name and the new ending. Brixalo is designed to leave the original alone. Use copies of important files while testing this prototype. If the name is taken, Brixalo adds (1), (2) and so on.
 
 ![Finished](img/06-done.png)
 
@@ -66,7 +68,7 @@ Use the switch at the top of the window.
 
 ![Dark](img/08-dark.png)
 
-**Glass** is see-through and soft. It has two extra controls: a slider from Clear to Solid for how see-through the wheel is, and a **Tint** menu to choose a Dark or Light glass.
+**Glass** is a transparency theme. Native background blur depends on your operating system and compositor; Windows and macOS blur are not visually verified. It has two extra controls: a slider from Clear to Solid for how see-through the wheel is, and a **Tint** menu to choose a Dark or Light glass.
 
 ![Glass controls](img/10-glass-controls.png)
 
