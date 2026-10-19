@@ -122,3 +122,10 @@ html,body{font:15px/1.8 Arial,sans-serif}
 button,input,select,textarea,.themes button{font-family:Arial,sans-serif;font-size:12px}.small,.muted,.themes-path{font:11px/1.8 Arial,sans-serif}.drop-card p.small{font:11px/1.8 Arial,sans-serif}
 html[data-native][data-glass="1"]{background:transparent}
 @media(max-width:800px){.drop-card h1{font-size:clamp(47px,11.5vw,70px)}.drop-card p{font-size:13px}.convert-grid label,#crypto-body label{font-size:14px;line-height:1.5}:is(#crypto-body,#decoder-body,#viewer-body) p,#conversion-advice{font-size:12px;line-height:1.9}.drop-card{padding:12px}}
+/* Soft, rounded edges requested for every mode. */
+#drop,html[data-glass="1"] #drop{border-radius:32px}
+button,.themes,.themes button,.brand:before{border-radius:999px}
+input,select,textarea,.convert-grid input,.convert-grid select,#crypto-body input,#crypto-body select,#viewer-body select,.page-nav input,.glassbar select,.byte-preview,#decode-results pre{border-radius:16px}
+#conversion-dialog,#viewer-dialog,#crypto-dialog,#decoder-dialog,html[data-glass="1"] dialog{border-radius:28px}
+.source-facts span,kbd{border-radius:999px}
+#conversion-advice,.job,#caption{border-radius:20px}
