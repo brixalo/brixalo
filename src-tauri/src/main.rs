@@ -305,9 +305,17 @@ fn preview_file(input: String, page: Option<u32>) -> Result<serde_json::Value, S
     Ok(serde_json::json!({"kind":"bytes","bytes":data,"size_bytes":size,"truncated":size>data.len() as u64}))
 }
 
+const WRAPPER_HEADER: &[u8] = b"BRXAGE1\n";
+// Decorative ciphertext wrapper only, not an additional cryptographic primitive.
+fn copy_wrapper<R: std::io::Read, W: std::io::Write>(mut reader: R, mut writer: W, wrap: bool) -> std::io::Result<()> {
+    if wrap { writer.write_all(WRAPPER_HEADER)?; }
+    else {let mut header=[0u8;8];reader.read_exact(&mut header)?;if header!=WRAPPER_HEADER{return Err(std::io::Error::new(std::io::ErrorKind::InvalidData,"Not a Brixalo age wrapper"));}}
+    let mut buf=[0u8;65536];loop{let n=reader.read(&mut buf)?;if n==0{break;}for b in &mut buf[..n]{*b^=0xa5;}writer.write_all(&buf[..n])?;}writer.flush()
+}
+
 /// Interoperable authenticated encryption delegated to the age executable.
 #[tauri::command]
-fn age_file(input: String, output: String, recipient: Option<String>, identity: Option<String>, action: String) -> Result<(), String> {
+fn age_file(input: String, output: String, recipient: Option<String>, identity: Option<String>, action: String, advanced: Option<bool>) -> Result<(), String> {
     let source=Path::new(&input);let out=Path::new(&output);
     if !source.is_file(){return Err("Input must be a local file.".into());}
     if out.exists(){return Err("Destination exists. Choose a new filename.".into());}
@@ -323,19 +331,39 @@ fn age_file(input: String, output: String, recipient: Option<String>, identity: 
     let mut cmd=Command::new("age");
     if action=="encrypt" {
         let key=recipient.ok_or("Recipient public key is required.")?;
-        if !key.starts_with("age1")||key.len()!=62||!key.chars().all(|c|c.is_ascii_lowercase()||c.is_ascii_digit()){let _=std::fs::remove_file(&tmp);return Err("Invalid X25519 age recipient.".into());}
+        if !key.starts_with("age1")||key.len()!=62||!key.chars().all(|c|c.is_ascii_lowercase()||c.is_ascii_digit()){let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Invalid X25519 age recipient.".into());}
         cmd.args(["-r",&key]);
     }else{
         let key_path=identity.ok_or("Local identity file is required.")?;
-        if !Path::new(&key_path).is_file(){let _=std::fs::remove_file(&tmp);return Err("Identity file was not found.".into());}
+        if !Path::new(&key_path).is_file(){let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Identity file was not found.".into());}
         cmd.args(["-d","-i",&key_path]);
     }
-    let result=cmd.arg("--").arg(source).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::from(file)).stderr(std::process::Stdio::piped()).status();
+    let mut unwrapped=None;
+    if action=="decrypt" {
+        use std::io::Read;
+        let mut original=std::fs::File::open(source).map_err(|e|e.to_string())?;let mut header=[0u8;8];let read=original.read(&mut header).unwrap_or(0);
+        if read==8&&header==WRAPPER_HEADER {
+            let inner=tmp.with_extension("age-inner");
+            let inner_file=std::fs::OpenOptions::new().write(true).create_new(true).open(&inner).map_err(|e|e.to_string())?;
+            if copy_wrapper(std::fs::File::open(source).map_err(|e|e.to_string())?,inner_file,false).is_err(){let _=std::fs::remove_file(&inner);let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Malformed experimental wrapper.".into());}
+            unwrapped=Some(inner);
+        }
+    }
+    let actual_source=unwrapped.as_deref().unwrap_or(source);
+    let result=cmd.arg("--").arg(actual_source).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::from(file)).stderr(std::process::Stdio::piped()).output();
+    if let Some(inner)=unwrapped{let _=std::fs::remove_file(inner);}
     match result {
-        Ok(status) if status.success()=>{
+        Ok(result) if result.status.success()=>{
+            // Advanced mode wraps completed ciphertext only. age authentication remains the security boundary.
+            let wrapped=tmp.with_extension("wrapped");
+            let publish=if action=="encrypt"&&advanced.unwrap_or(true){
+                let target=std::fs::OpenOptions::new().write(true).create_new(true).open(&wrapped).map_err(|e|e.to_string())?;
+                if copy_wrapper(std::fs::File::open(&tmp).map_err(|e|e.to_string())?,target,true).is_err(){let _=std::fs::remove_file(&wrapped);let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);return Err("Could not create experimental wrapper.".into());}
+                &wrapped
+            }else{&tmp};
             // Atomic no-clobber publication: hard_link fails if another file took the destination.
-            let r=std::fs::hard_link(&tmp,out).map_err(|_|"Could not save without overwriting. Choose a new destination on this filesystem.".to_string());
-            let _=std::fs::remove_file(&tmp);r
+            let r=std::fs::hard_link(publish,out).map_err(|_|"Could not save without overwriting. Choose a new destination on this filesystem.".to_string());
+            let _=std::fs::remove_file(&tmp);let _=std::fs::remove_file(&wrapped);r
         }
         _=>{let _=std::fs::remove_file(&tmp);Err("age failed. Check that age is installed, the key matches and the file is valid. Encrypted/passphrase-protected identity files needing an interactive prompt are not supported.".into())}
     }
@@ -425,6 +453,14 @@ mod tests {
         assert_eq!(result["kind"],"bytes");assert_eq!(result["truncated"],false);
         fs::write(&input,vec![65u8;300000]).unwrap();
         let result=preview_file(input.to_string_lossy().to_string(),None).unwrap();assert_eq!(result["bytes"].as_array().unwrap().len(),256*1024);assert_eq!(result["truncated"],true);
+    }
+
+    #[test]
+    fn ciphertext_wrapper_is_reversible_and_rejects_bad_headers(){
+        let data:Vec<u8>=(0..200000).map(|n|(n%256)as u8).collect();let mut wrapped=Vec::new();
+        copy_wrapper(std::io::Cursor::new(&data),&mut wrapped,true).unwrap();assert!(wrapped.starts_with(WRAPPER_HEADER));
+        let mut decoded=Vec::new();copy_wrapper(std::io::Cursor::new(&wrapped),&mut decoded,false).unwrap();assert_eq!(decoded,data);
+        assert!(copy_wrapper(std::io::Cursor::new(b"invalid"),Vec::new(),false).is_err());
     }
 
 }

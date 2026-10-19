@@ -44,7 +44,7 @@ export async function configureConversion(path,selected,T,onConvert) {
  const options=()=>normalizeOptions({mode:$('convert-mode').value,quality:$('convert-quality').value,audioKbps:$('convert-bitrate').value,maxDimension:$('convert-dimension').value,targetMB:$('convert-target').value});
  function update(){
   const to=$('output-format').value,f=recipe(info.kind,to),mode=$('convert-mode').value;
-  $('quality-label').hidden=info.kind==='audio'||f.kind==='audio'||mode==='lossless'||mode==='size';
+  $('quality-label').hidden=info.kind==='audio'||f.kind==='audio'||mode==='lossless'||mode==='size'||(f.kind==='video'&&mode!=='balanced');
   $('audio-label').hidden=info.kind==='image'||f.lossless||(f.kind==='video'&&!info.has_audio)||mode==='lossless'||(mode==='size'&&f.kind==='audio');
   $('dimension-label').hidden=f.kind==='audio';$('target-label').hidden=mode!=='size';
   $('convert-mode').querySelector('[value=size]').disabled=info.kind==='image'||to==='gif';
