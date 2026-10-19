@@ -20,16 +20,18 @@ await page.click('#view-pick');await page.waitForSelector('#viewer-body textarea
 await page.click('#byte-tool');await page.type('#byte-input','Hello 👾');await page.click('#byte-convert');assert((await page.$eval('#byte-output',e=>e.value)).startsWith('01001000'));await page.screenshot({path:out+'/byte-tool.png'});await page.click('#close-viewer');
 await page.click('#decoder-tool');await page.type('#decode-input','SGVsbG8gd29ybGQ=');await page.click('#decode-run');assert((await page.$eval('#decode-results',e=>e.innerText)).includes('Hello world'));await page.screenshot({path:out+'/decoder.png'});await page.click('#close-decoder');
 await page.click('#crypto-tool');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('X25519'));assert.equal(await page.$eval('#crypto-security',e=>e.value),'advanced');assert((await page.$eval('#crypto-body',e=>e.innerText)).includes('adds no proven security'));await page.screenshot({path:out+'/encryption.png'});await page.click('#close-crypto');
-// Theme, tint and shade controls persist and change surface density.
+// Appearance settings stay out of the main view and persist across reloads.
+assert.equal(await page.$eval('#settings-dialog',e=>e.open),false);
+await page.screenshot({path:out+'/main-clean.png'});await page.click('#settings-open');
 for(const theme of ['dark','light','glass']){
  await page.click(`.themes button[data-theme="${theme}"]`);assert.equal(await page.$eval('html',e=>e.dataset.theme),theme);
- await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-'+theme+'.png'});
+ await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/settings-'+theme+'.png'});await page.click('#settings-close');await page.screenshot({path:out+'/theme-'+theme+'.png'});await page.click('#settings-open');
 }
 const before=await page.$eval('html',e=>e.style.getPropertyValue('--p0'));
 await page.$eval('#alpha',e=>{e.value=80;e.dispatchEvent(new Event('input',{bubbles:true}));});assert.notEqual(await page.$eval('html',e=>e.style.getPropertyValue('--p0')),before);
 await page.$eval('#foreground',e=>{e.value=75;e.dispatchEvent(new Event('input',{bubbles:true}));});
-await page.goto('http://localhost:8766/');await page.waitForSelector('[data-theme=glass][aria-pressed=true]');assert.equal(await page.$eval('#alpha',e=>e.value),'80');assert.equal(await page.$eval('#foreground',e=>e.value),'75');
-await page.setViewport({width:640,height:560});await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-small.png'});
+await page.goto('http://localhost:8766/');await page.waitForSelector('#settings-open');await page.click('#settings-open');await page.waitForSelector('[data-theme=glass][aria-pressed=true]');assert.equal(await page.$eval('#alpha',e=>e.value),'80');assert.equal(await page.$eval('#foreground',e=>e.value),'75');
+await page.click('#settings-close');await page.setViewport({width:640,height:560});await page.evaluate(()=>Promise.allSettled(document.getAnimations().map(a=>a.finished)));await page.screenshot({path:out+'/theme-glass-small.png'});
 assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
 assert.equal(await page.$eval('#drop',e=>getComputedStyle(e).backdropFilter),'none');
 assert.deepEqual(errors,[]);console.log('PASS UI: real source metadata, lossy warning, estimates, invalid-size/lossless gating, small window, no JS errors');await browser.close();srv.close();

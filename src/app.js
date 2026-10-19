@@ -91,6 +91,8 @@ function chooseTheme(id) {
   document.querySelectorAll(".themes button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.theme === document.documentElement.dataset.theme)));
 }
 await initThemes();
+$("settings-open").addEventListener("click",()=>$("settings-dialog").showModal());
+$("settings-close").addEventListener("click",()=>$("settings-dialog").close());
 
 // ---------- jobs ----------
 function toast(path, cls, msg, id) {

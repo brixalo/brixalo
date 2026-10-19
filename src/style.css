@@ -129,3 +129,7 @@ input,select,textarea,.convert-grid input,.convert-grid select,#crypto-body inpu
 #conversion-dialog,#viewer-dialog,#crypto-dialog,#decoder-dialog,html[data-glass="1"] dialog{border-radius:28px}
 .source-facts span,kbd{border-radius:999px}
 #conversion-advice,.job,#caption{border-radius:20px}
+
+#settings-open{padding:7px 16px;margin:0}#settings-dialog{width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:28px;padding:28px}
+#settings-close{float:right;margin:0}#settings-dialog h2{font:400 36px/1.02 Arial,sans-serif;letter-spacing:-.055em;margin:16px 0}#settings-dialog::backdrop{background:rgba(3,4,7,.5);backdrop-filter:blur(7px)}
+#settings-dialog .themes{width:max-content;max-width:100%;margin:24px 0}#settings-dialog .glassbar{display:flex;flex-direction:column;align-items:stretch;gap:24px;margin:24px 0 8px}#settings-dialog .glassbar label{display:grid;grid-template-columns:90px 1fr 40px;gap:12px;font:12px Arial,sans-serif}#settings-dialog .glassbar input[type="range"]{width:100%}#settings-dialog output{text-align:right}
