@@ -408,4 +408,23 @@ mod tests {
         assert!(!Path::new(&out).exists());
         assert!(fs::read_dir(&d).unwrap().filter_map(|e| e.ok()).all(|e| !e.file_name().to_string_lossy().contains(".part.")));
     }
+    #[test]
+    fn inspect_real_audio_and_reject_missing_file() {
+        let d=tmp("inspect");let input=d.join("tone.wav");
+        assert!(Command::new("ffmpeg").args(["-y","-v","error","-f","lavfi","-i","sine=duration=1"]).arg(&input).status().unwrap().success());
+        let result=inspect_file(input.to_string_lossy().to_string()).unwrap();
+        assert!(result["streams"].as_array().unwrap().iter().any(|s|s["codec_type"]=="audio"));
+        assert!(inspect_file(d.join("missing").to_string_lossy().to_string()).is_err());
+        assert!(!media_capabilities()["encoders"].as_array().unwrap().is_empty());
+    }
+    #[test]
+    fn preview_code_is_inert_and_bounded() {
+        let d=tmp("preview");let input=d.join("test.html");
+        fs::write(&input,b"<script>alert(1)</script>").unwrap();
+        let result=preview_file(input.to_string_lossy().to_string(),None).unwrap();
+        assert_eq!(result["kind"],"bytes");assert_eq!(result["truncated"],false);
+        fs::write(&input,vec![65u8;300000]).unwrap();
+        let result=preview_file(input.to_string_lossy().to_string(),None).unwrap();assert_eq!(result["bytes"].as_array().unwrap().len(),256*1024);assert_eq!(result["truncated"],true);
+    }
+
 }
