@@ -79,14 +79,12 @@ async function initThemes() {
     b.addEventListener("click", () => chooseTheme(t.id));
     bar.append(b);
   }
-  const g = glassSettings();
-  $("alpha").value = g.alpha; $("tint").value = g.tint; $("shade").value = g.shade;
-  $("alpha").addEventListener("input", () => { saveGlass({ ...glassSettings(), alpha: +$("alpha").value }); applyTheme(document.documentElement.dataset.theme); });
-  $("tint").addEventListener("change", () => { saveGlass({ ...glassSettings(), tint: $("tint").value }); applyTheme(document.documentElement.dataset.theme); });
-  $("shade").addEventListener("change", () => { saveGlass({ ...glassSettings(), shade: $("shade").value }); applyTheme(document.documentElement.dataset.theme); });
-  chooseTheme(new URLSearchParams(location.search).get("theme") || savedThemeId());
-  const gq = new URLSearchParams(location.search);
-  if (gq.get("alpha") || gq.get("tint")) { saveGlass({ ...glassSettings(), alpha: +gq.get("alpha") || glassSettings().alpha, tint: gq.get("tint") || glassSettings().tint }); $("alpha").value = glassSettings().alpha; $("tint").value = glassSettings().tint; chooseTheme(document.documentElement.dataset.theme); }
+  const g=glassSettings();
+  function sync(){const g=glassSettings();$("alpha").value=g.alpha;$("foreground").value=g.foreground;$("alpha-value").value=g.alpha+'%';$("foreground-value").value=g.foreground+'%';}
+  sync();
+  for(const key of ['alpha','foreground'])$(key).addEventListener('input',()=>{saveGlass({...glassSettings(),[key]:+$(key).value});sync();applyTheme(document.documentElement.dataset.theme);});
+  chooseTheme(new URLSearchParams(location.search).get("theme")||savedThemeId());
+  matchMedia('(max-width:899px)').addEventListener('change',()=>applyTheme(document.documentElement.dataset.theme));
 }
 function chooseTheme(id) {
   applyTheme(id);

@@ -28,50 +28,30 @@ function validTheme(t) {
 }
 
 export function glassSettings() {
-  try { return { alpha: 50, tint: "dark", shade: "balanced", ...JSON.parse(localStorage.getItem(GLASS_STORE) || "{}") }; } catch { return { alpha: 50, tint: "dark", shade: "balanced" }; }
+  try { const s=JSON.parse(localStorage.getItem(GLASS_STORE)||"{}"); return {alpha: Math.min(95,Math.max(20,Number(s.alpha)||50)), foreground: Math.min(100,Math.max(70,Number(s.foreground)||100))}; }
+  catch {return {alpha:50,foreground:100};}
 }
+export function saveGlass(s) {try {localStorage.setItem(GLASS_STORE,JSON.stringify(s));} catch {}}
 
-export function saveGlass(s) {
-  try { localStorage.setItem(GLASS_STORE, JSON.stringify(s)); } catch { /* storage unavailable */ }
+// PANOPTES values, implemented independently. Opacity affects surfaces and text separately.
+export function applyTheme(id, settings=glassSettings()) {
+  const t=themes.get(id)||themes.get("glass"), root=document.documentElement;
+  for(const k of [...root.style]) if(k.startsWith("--"))root.style.removeProperty(k);
+  const a=Math.min(.95,Math.max(.2,settings.alpha/100)), f=Math.min(1,Math.max(.7,settings.foreground/100));
+  const small=matchMedia('(max-width:899px)').matches;
+  const panelAlpha=t.id==='glass'&&!small?a*.62:a;
+  const panel=t.panelRGB?`rgba(${t.panelRGB},${panelAlpha})`:t.vars['--card'];
+  const vars={...t.vars};
+  if(t.panelRGB)Object.assign(vars,{'--card':panel,'--p0':panel,'--p1':panel,'--hub0':panel,'--hub1':panel,'--blur':small?'none':`blur(${t.blur}px)`,
+    '--ink':`color-mix(in srgb, ${t.vars['--ink']} ${f*100}%, transparent)`,
+    '--mute':`color-mix(in srgb, ${t.vars['--mute']} ${f*100}%, transparent)`});
+  for(const [k,v]of Object.entries(vars))if(KNOWN_VARS.test(k))root.style.setProperty(k,v);
+  root.style.colorScheme=t.scheme==='light'?'light':'dark';
+  root.dataset.theme=t.id;root.dataset.glass=t.id==='glass'?'1':'';
+  const T=typeof window!=='undefined'&&window.__TAURI__;
+  if(T){root.dataset.native='1';T.core.invoke('set_glass',{on:t.id==='glass',dark:true}).then(m=>root.dataset.glassMode=m).catch(()=>{});}
+  try{localStorage.setItem(STORE,t.id);}catch{}
 }
-
-// Apply a theme by setting its variables on <html>. Glass themes build their translucent
-// fills from the chosen tint and the transparency slider (alpha 0 = clear, 100 = solid).
-export function applyTheme(id, glass = glassSettings()) {
-  const t = themes.get(id) || themes.get("glass");
-  const root = document.documentElement;
-  for (const k of [...root.style]) if (k.startsWith("--")) root.style.removeProperty(k);
-  let vars = t.vars || {};
-  if (t.glass) {
-    const tint = t.tints[glass.tint] || t.tints.dark;
-    const base = Math.min(1, Math.max(0.15, glass.alpha / 100));
-    const shade = { soft: -0.12, balanced: 0, deep: 0.16 }[glass.shade] || 0;
-    const a = Math.min(1, Math.max(0.15, base + shade));
-    vars = {
-      ...tint,
-      "--p0": `rgba(${tint["--rgb0"]},${a})`, "--p1": `rgba(${tint["--rgb1"]},${a})`,
-      "--hub0": `rgba(${tint["--hub-rgb0"]},${Math.min(1, a + 0.2)})`, "--hub1": `rgba(${tint["--hub-rgb1"]},${Math.min(1, a + 0.2)})`,
-      "--veil": `radial-gradient(circle at var(--cx, 50%) var(--cy, 50%), rgba(${tint["--veil-rgb"]},${0.2 + a * 0.25}), rgba(${tint["--veil-rgb"]},${0.45 + a * 0.4}))`,
-      "--blur": `blur(${Math.round(16 + (1 - a) * 16)}px)`,
-      // Window fill: the lower the slider, the more of the desktop shows through.
-      "--page": `radial-gradient(ellipse at 8% 0%, rgba(142,110,210,.22), transparent 60%), radial-gradient(ellipse at 100% 100%, rgba(160,180,115,.13), transparent 65%), linear-gradient(160deg, rgba(${tint["--rgb1"]},${(0.08 + 0.8 * a).toFixed(3)}), rgba(${tint["--hub-rgb1"]},${(0.1 + 0.8 * a).toFixed(3)}))`,
-      "--card": `rgba(${tint["--rgb0"]},${(0.2 + 0.5 * a).toFixed(3)})`,
-    };
-  }
-  for (const [k, v] of Object.entries(vars)) if (KNOWN_VARS.test(k)) root.style.setProperty(k, v);
-  root.style.colorScheme = (t.glass ? glass.tint : t.scheme) === "light" ? "light" : "dark";
-  root.dataset.theme = t.id;
-  root.dataset.glass = t.glass ? "1" : "";
-  root.dataset.tint = t.glass ? glass.tint : t.scheme;
-  root.dataset.shade = t.glass ? (glass.shade || "balanced") : "";
-  const T = typeof window !== "undefined" && window.__TAURI__;
-  if (T) {
-    root.dataset.native = "1";
-    T.core.invoke("set_glass", { on: !!t.glass, dark: glass.tint !== "light" }).then((m) => { root.dataset.glassMode = m; }).catch(() => {});
-  }
-  try { localStorage.setItem(STORE, t.id); } catch { /* storage unavailable */ }
-}
-
 export function savedThemeId() {
   try { return localStorage.getItem(STORE) || "glass"; } catch { return "glass"; }
 }

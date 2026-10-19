@@ -10,11 +10,11 @@
 <main id="stage">
   <header>
     <div class="brand"><svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><g fill="#ff7a6b"><ellipse cx="16" cy="8" rx="4.5" ry="7"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(72 16 16)" fill="#2ec4b6"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(144 16 16)"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(216 16 16)" fill="#2ec4b6"/><ellipse cx="16" cy="8" rx="4.5" ry="7" transform="rotate(288 16 16)"/></g></svg><span>Brixalo</span></div>
-    <div class="tools"><div class="themes" role="group" aria-label="Theme"></div><div class="glassbar" id="glassbar"><label>Clear <input id="alpha" type="range" min="15" max="100" aria-label="Glass transparency"> Solid</label><label>Tint <select id="tint" aria-label="Glass tint"><option value="dark">Dark</option><option value="light">Light</option></select></label><label>Shade <select id="shade" aria-label="Glass shade"><option value="soft">Soft</option><option value="balanced">Balanced</option><option value="deep">Deep</option></select></label></div><div class="engine" id="engine">checking engine...</div></div>
+    <div class="tools"><div class="themes" role="group" aria-label="Theme"></div><div class="glassbar" id="glassbar"><label>Background <input id="alpha" type="range" min="20" max="95" aria-label="Background opacity"><output id="alpha-value">50%</output></label><label>Foreground <input id="foreground" type="range" min="70" max="100" aria-label="Foreground opacity"><output id="foreground-value">100%</output></label></div><div class="engine" id="engine">checking engine...</div></div>
   </header>
   <section id="drop">
     <div class="drop-card">
-      <h1>Drop a file here</h1>
+      <h1>Drop a <em>file</em> here</h1>
       <p>The conversion wheel opens right under your cursor. <kbd>Esc</kbd> closes it.</p>
       <button id="pick" type="button">Choose a file</button>
       <button id="inspect-pick" class="secondary" type="button">Inspect quality / all formats</button>
