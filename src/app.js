@@ -98,9 +98,9 @@ async function setSettings(open){
   if(open)dialog.showModal();
   dial.setAttribute('aria-expanded',String(open));
   const frames=reduce?[{opacity:open?0:1},{opacity:open?1:0}]:open?
-    [{opacity:0,transform:'perspective(900px) rotateY(-16deg) scale(.90) translateY(12px)'},{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1) translateY(0)'}]:
-    [{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1)'},{opacity:0,transform:'perspective(900px) rotateY(12deg) scale(.94) translateY(8px)'}];
-  await dialog.animate(frames,{duration:reduce?90:open?420:300,easing:'cubic-bezier(.2,.75,.25,1)',fill:'none'}).finished.catch(()=>{});
+    [{opacity:0,transform:'perspective(900px) rotateY(-5deg) scale(.98) translateY(5px)'},{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1) translateY(0)'}]:
+    [{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1)'},{opacity:0,transform:'perspective(900px) rotateY(4deg) scale(.98) translateY(4px)'}];
+  await dialog.animate(frames,{duration:reduce?90:open?280:210,easing:'cubic-bezier(.2,.75,.25,1)',fill:'none'}).finished.catch(()=>{});
   if(!open){dialog.close();dial.focus();}settingsBusy=false;
 }
 $("settings-open").addEventListener("click",()=>setSettings(true));

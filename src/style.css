@@ -134,10 +134,16 @@ input,select,textarea,.convert-grid input,.convert-grid select,#crypto-body inpu
 #settings-close{float:right;margin:0}#settings-dialog h2{font:400 36px/1.02 Arial,sans-serif;letter-spacing:-.055em;margin:16px 0}#settings-dialog::backdrop{background:rgba(3,4,7,.5);backdrop-filter:blur(7px)}
 #settings-dialog .themes{width:max-content;max-width:100%;margin:24px 0}#settings-dialog .glassbar{display:flex;flex-direction:column;align-items:stretch;gap:24px;margin:24px 0 8px}#settings-dialog .glassbar label{display:grid;grid-template-columns:90px 1fr 40px;gap:12px;font:12px Arial,sans-serif}#settings-dialog .glassbar input[type="range"]{width:100%}#settings-dialog output{text-align:right}
 
-/* Original vault dial: a cut ring and three spokes, no image asset. */
-#settings-open{width:44px;height:44px;padding:8px;display:grid;place-items:center;overflow:visible;position:relative}.vault-dial{display:block;width:26px;height:26px;border:1.5px solid var(--ink);border-radius:50%;position:relative;transition:transform .55s cubic-bezier(.2,.75,.25,1)}.vault-dial:before,.vault-dial:after,.vault-dial i{content:'';position:absolute;left:11px;top:4px;width:2px;height:16px;background:var(--ink);border-radius:4px}.vault-dial:before{transform:rotate(60deg)}.vault-dial:after{transform:rotate(-60deg)}#settings-open:hover .vault-dial{transform:rotate(45deg)}#settings-open[aria-expanded="true"] .vault-dial{transform:rotate(180deg)}#settings-dialog{transform-origin:15% 50%;will-change:transform,opacity}
+/* Plain rotary Settings knob with a single index mark. */
+#settings-open{width:44px;height:44px;padding:8px;display:grid;place-items:center;overflow:visible;position:relative}.vault-dial{display:block;width:26px;height:26px;border:1.5px solid var(--mute);background:var(--card);border-radius:50%;position:relative;transition:transform .4s cubic-bezier(.2,.75,.25,1)}.vault-dial i{position:absolute;left:11px;top:3px;width:2px;height:6px;background:var(--ink);border-radius:2px}#settings-open:hover .vault-dial{transform:rotate(25deg)}#settings-open[aria-expanded="true"] .vault-dial{transform:rotate(140deg)}#settings-dialog{transform-origin:15% 50%}
 @media(prefers-reduced-motion:reduce){.vault-dial{transition:none}#settings-open:hover .vault-dial{transform:none}}
 
 #settings-hint{position:absolute;right:0;bottom:calc(100% + 3px);font:10px/1.2 Arial,sans-serif;padding:4px 7px;border:1px solid var(--line);border-radius:8px;background:var(--p0);color:var(--ink);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s}#settings-open:hover #settings-hint,#settings-open:focus-visible #settings-hint{opacity:1;visibility:visible}
 
 header{padding-top:18px}#settings-hint{white-space:nowrap}
+/* Original crown-like control: softly lit metal ring, restrained glass face. */
+#settings-open{background:transparent;border:0;box-shadow:none}
+.vault-dial{width:29px;height:29px;border:1px solid var(--line);background:linear-gradient(145deg,#ffffff14,#ffffff03);box-shadow:inset 0 1px 2px #ffffff20,0 2px 5px #0002;outline:1px solid var(--line);outline-offset:3px;transition:transform .36s cubic-bezier(.2,.85,.3,1)}
+.vault-dial i{left:13px;top:4px;width:2px;height:5px;opacity:.8}
+#settings-open:active .vault-dial{scale:.94}#settings-open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.vault-dial{transition:none}#settings-open:active .vault-dial{scale:1}}
